@@ -2,35 +2,34 @@
   "manifest_version": 3,
   "name": "ChatGPT Document Scanner",
   "version": "1.0.0",
-  "description": "Scans documents uploaded to ChatGPT for prompt injection attempts and security threats",
-  
+  "description": "Detects prompt injection attacks in documents uploaded to ChatGPT using local AI analysis",
   "permissions": [
     "activeTab",
     "storage",
     "notifications"
   ],
-  
   "host_permissions": [
     "https://chat.openai.com/*",
     "https://chatgpt.com/*"
   ],
-  
   "content_scripts": [
     {
       "matches": [
         "https://chat.openai.com/*",
         "https://chatgpt.com/*"
       ],
-      "js": ["content.js"],
-      "css": ["styles.css"],
-      "run_at": "document_start"
+      "js": [
+        "dist/content.js"
+      ],
+      "css": [
+        "styles/content.css"
+      ],
+      "run_at": "document_idle"
     }
   ],
-  
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "dist/background.js"
   },
-  
   "action": {
     "default_popup": "popup.html",
     "default_title": "ChatGPT Document Scanner",
@@ -41,18 +40,22 @@
       "128": "icons/icon128.png"
     }
   },
-  
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  
   "web_accessible_resources": [
     {
-      "resources": ["injected.js"],
-      "matches": ["https://chat.openai.com/*", "https://chatgpt.com/*"]
+      "resources": [
+        "dist/*",
+        "styles/*"
+      ],
+      "matches": [
+        "https://chat.openai.com/*",
+        "https://chatgpt.com/*"
+      ]
     }
   ]
 }

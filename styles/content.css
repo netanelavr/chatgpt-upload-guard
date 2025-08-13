@@ -1,0 +1,396 @@
+/* ChatGPT Document Scanner - Content Styles */
+
+/* Loading Overlay */
+#doc-scanner-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999999;
+  pointer-events: none;
+}
+
+.doc-scanner-loading-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+}
+
+.doc-scanner-loading-content {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  text-align: center;
+  max-width: 400px;
+  min-width: 300px;
+}
+
+.doc-scanner-loading-content h3 {
+  margin: 16px 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.doc-scanner-loading-content p {
+  margin: 0 0 8px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.doc-scanner-loading-content small {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+/* Spinner Animation */
+.doc-scanner-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: doc-scanner-spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes doc-scanner-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Notifications */
+.doc-scanner-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 300px;
+  max-width: 400px;
+  z-index: 999998;
+  border-left: 4px solid transparent;
+  animation: doc-scanner-slide-in 0.3s ease-out;
+}
+
+.doc-scanner-notification.safe {
+  border-left-color: #10b981;
+}
+
+.doc-scanner-notification.error {
+  border-left-color: #ef4444;
+}
+
+.doc-scanner-notification-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: inherit;
+}
+
+.doc-scanner-notification.safe .doc-scanner-notification-icon {
+  color: #10b981;
+}
+
+.doc-scanner-notification.error .doc-scanner-notification-icon {
+  color: #ef4444;
+}
+
+.doc-scanner-notification-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.doc-scanner-notification-content strong {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.doc-scanner-notification-content span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.doc-scanner-notification-close {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.doc-scanner-notification-close:hover {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+@keyframes doc-scanner-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Threat Modal */
+#doc-scanner-threat-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999999;
+}
+
+.doc-scanner-modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: doc-scanner-fade-in 0.3s ease-out;
+}
+
+.doc-scanner-modal-content {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: doc-scanner-modal-in 0.3s ease-out;
+}
+
+.doc-scanner-modal-header {
+  padding: 24px 24px 0 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.doc-scanner-threat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.doc-scanner-modal-header h2 {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.doc-scanner-modal-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.doc-scanner-modal-body {
+  padding: 24px;
+}
+
+.doc-scanner-risk-level {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.doc-scanner-risk-badge {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.doc-scanner-risk-badge.low {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.doc-scanner-risk-badge.medium {
+  background: #fed7aa;
+  color: #c2410c;
+}
+
+.doc-scanner-risk-badge.high {
+  background: #fecaca;
+  color: #dc2626;
+}
+
+.doc-scanner-confidence {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.doc-scanner-summary,
+.doc-scanner-threats {
+  margin-bottom: 20px;
+}
+
+.doc-scanner-summary h3,
+.doc-scanner-threats h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.doc-scanner-summary p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.doc-scanner-threats ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.doc-scanner-threats li {
+  margin-bottom: 4px;
+}
+
+.doc-scanner-warning {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.doc-scanner-warning strong {
+  color: #dc2626;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.doc-scanner-warning ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+  color: #7f1d1d;
+  font-size: 14px;
+}
+
+.doc-scanner-warning li {
+  margin-bottom: 4px;
+}
+
+.doc-scanner-modal-footer {
+  padding: 0 24px 24px 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.doc-scanner-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.doc-scanner-btn.danger {
+  background: #dc2626;
+  color: white;
+}
+
+.doc-scanner-btn.danger:hover {
+  background: #b91c1c;
+}
+
+.doc-scanner-btn.secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.doc-scanner-btn.secondary:hover {
+  background: #e5e7eb;
+}
+
+@keyframes doc-scanner-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes doc-scanner-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Remove existing notifications when new ones appear */
+#doc-scanner-safe-notification,
+#doc-scanner-error-notification {
+  animation: doc-scanner-slide-in 0.3s ease-out;
+}
+
+/* Ensure notifications stack properly */
+.doc-scanner-notification:nth-of-type(2) {
+  top: 90px;
+}
+
+.doc-scanner-notification:nth-of-type(3) {
+  top: 160px;
+}

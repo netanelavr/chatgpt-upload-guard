@@ -165,7 +165,7 @@ body {
   border-top: 1px solid #e5e7eb;
   display: flex;
   gap: 12px;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .btn {
@@ -176,7 +176,6 @@ body {
   cursor: pointer;
   transition: all 0.2s;
   border: none;
-  flex: 1;
 }
 
 .btn.primary {

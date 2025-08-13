@@ -21,9 +21,7 @@ async function loadPopupData() {
     const result = await chrome.storage.local.get(['scanStats']);
     const stats = result.scanStats || {
       totalScans: 0,
-      threatsDetected: 0,
-      filesBlocked: 0,
-      lastScan: null
+      threatsDetected: 0
     };
     
     updateStats(stats);
@@ -35,21 +33,13 @@ async function loadPopupData() {
 }
 
 function setupEventListeners() {
-  // Settings button
-  const settingsBtn = document.getElementById('settingsBtn');
-  settingsBtn?.addEventListener('click', () => {
-    chrome.runtime.openOptionsPage();
-  });
-
   // Clear stats button
   const clearStatsBtn = document.getElementById('clearStatsBtn');
   clearStatsBtn?.addEventListener('click', async () => {
     await chrome.storage.local.clear();
     updateStats({
       totalScans: 0,
-      threatsDetected: 0,
-      filesBlocked: 0,
-      lastScan: null
+      threatsDetected: 0
     });
   });
 }
@@ -90,21 +80,9 @@ function showErrorState() {
 function updateStats(stats: any) {
   const elements = {
     totalScans: document.getElementById('totalScans'),
-    threatsDetected: document.getElementById('threatsDetected'),
-    filesBlocked: document.getElementById('filesBlocked'),
-    lastScan: document.getElementById('lastScan')
+    threatsDetected: document.getElementById('threatsDetected')
   };
 
   if (elements.totalScans) elements.totalScans.textContent = stats.totalScans.toString();
   if (elements.threatsDetected) elements.threatsDetected.textContent = stats.threatsDetected.toString();
-  if (elements.filesBlocked) elements.filesBlocked.textContent = stats.filesBlocked.toString();
-  
-  if (elements.lastScan) {
-    if (stats.lastScan) {
-      const lastScanDate = new Date(stats.lastScan);
-      elements.lastScan.textContent = lastScanDate.toLocaleDateString();
-    } else {
-      elements.lastScan.textContent = 'Never';
-    }
-  }
 }

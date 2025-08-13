@@ -38,19 +38,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // Badge management
 chrome.action.setBadgeBackgroundColor({ color: '#dc2626' });
 
-// Update badge when threats are detected
-function updateBadge(tabId: number, threatCount: number) {
-  if (threatCount > 0) {
-    chrome.action.setBadgeText({
-      text: threatCount.toString(),
-      tabId: tabId
-    });
-  } else {
-    chrome.action.setBadgeText({
-      text: '',
-      tabId: tabId
-    });
-  }
-}
-
 export {};

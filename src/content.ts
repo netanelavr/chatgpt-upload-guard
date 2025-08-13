@@ -13,12 +13,13 @@ class ChatGPTDocumentScanner {
   private isLLMReady = false;
   private disabledButtons = new Set<HTMLElement>();
 
+
   constructor() {
     this.init();
   }
 
   private init(): void {
-    console.log('ChatGPT Document Scanner: Extension initialized');
+    console.log('🛡️ Document Scanner: Extension loaded');
     
     // Disable upload buttons initially
     this.disableUploadButtons();
@@ -40,14 +41,13 @@ class ChatGPTDocumentScanner {
 
   private async initializeThreatDetector(): Promise<void> {
     try {
-      console.log('ChatGPT Document Scanner: Initializing AI threat detection...');
       await ThreatDetector.initialize();
       
       this.isLLMReady = true;
       this.enableUploadButtons();
-      console.log('ChatGPT Document Scanner: Threat detection ready');
+      console.log('✅ Document Scanner: Ready');
     } catch (error) {
-      console.error('ChatGPT Document Scanner: Failed to initialize threat detection:', error);
+      console.error('❌ Document Scanner: Failed to initialize:', error);
       // Keep buttons disabled if initialization fails
     }
   }
@@ -210,7 +210,21 @@ class ChatGPTDocumentScanner {
     // Intercept BEFORE ChatGPT processes the file
     input.addEventListener('change', async (event) => {
       const files = (event.target as HTMLInputElement).files;
+      
       if (files && files.length > 0) {
+        // Check if any file is supported before doing anything
+        const hasSupportedFiles = Array.from(files).some(file => {
+          const fileType = file.name.split('.').pop()?.toLowerCase();
+          return ['txt', 'docx'].includes(fileType || '');
+        });
+        
+        // If no supported files, let ChatGPT handle it normally
+        if (!hasSupportedFiles) {
+          return; // Let the event continue normally to ChatGPT
+        }
+        
+        console.log(`🔍 Scanning ${files.length} file(s)...`);
+        
         // Prevent the event from reaching ChatGPT immediately
         event.stopImmediatePropagation();
         event.preventDefault();
@@ -218,14 +232,12 @@ class ChatGPTDocumentScanner {
         const shouldAllowUpload = await this.handleFileSelection(files, input);
         
         if (!shouldAllowUpload) {
-          // Block the upload completely
+          console.log('🚫 Upload blocked');
           input.value = '';
-          console.log('ChatGPT Document Scanner: File upload blocked via input interception');
           return;
         }
         
-        // If allowed, let the original event continue by not preventing it
-        // We already stopped it, so we need to manually re-enable file selection
+        // If allowed, let the original event continue
         const originalFiles = files;
         setTimeout(() => {
           // Re-trigger the change event with the original files
@@ -244,10 +256,24 @@ class ChatGPTDocumentScanner {
     // Monitor the entire document for drag and drop
     document.addEventListener('drop', async (event) => {
       const files = event.dataTransfer?.files;
+      
       if (files && files.length > 0) {
+        // Check if any file is supported before doing anything
+        const hasSupportedFiles = Array.from(files).some(file => {
+          const fileType = file.name.split('.').pop()?.toLowerCase();
+          return ['txt', 'docx'].includes(fileType || '');
+        });
+        
+        // If no supported files, let ChatGPT handle it normally
+        if (!hasSupportedFiles) {
+          return; // Let the event continue normally to ChatGPT
+        }
+        
         // Find the closest file input or upload area
         const uploadArea = this.findUploadArea(event.target as Element);
         if (uploadArea) {
+          console.log(`🔍 Scanning ${files.length} file(s)...`);
+          
           // Prevent the drop from reaching ChatGPT
           event.stopImmediatePropagation();
           event.preventDefault();
@@ -263,6 +289,8 @@ class ChatGPTDocumentScanner {
             setTimeout(() => {
               (event.target as Element).dispatchEvent(newEvent);
             }, 100);
+                      } else {
+            console.log('🚫 Upload blocked');
           }
         }
       }
@@ -405,12 +433,6 @@ class ChatGPTDocumentScanner {
       return true; // Already processed this exact file - allow it
     }
 
-    // Check if file type is supported
-    const fileType = file.name.split('.').pop()?.toLowerCase();
-    if (!['txt', 'docx', 'pdf'].includes(fileType || '')) {
-      return true; // Not a supported file type - allow it (not our concern)
-    }
-
     this.isProcessing = true;
     this.processedFiles.add(fileKey);
 
@@ -431,6 +453,8 @@ class ChatGPTDocumentScanner {
       UIComponents.hideLoadingSpinner();
 
       if (analysis.isThreats) {
+        console.log(`⚠️ Threats detected in "${file.name}"`);
+        
         // Update threat count
         await this.incrementThreatCount();
 
@@ -438,17 +462,15 @@ class ChatGPTDocumentScanner {
         const shouldProceed = await UIComponents.showThreatPopup(file.name, analysis);
         
         if (!shouldProceed) {
-          console.log(`ChatGPT Document Scanner: Blocked malicious file upload: ${file.name}`);
           this.isProcessing = false;
           return false; // Block the upload
         }
         
-        console.log(`ChatGPT Document Scanner: User allowed flagged file: ${file.name}`);
-        
-        // User chose to proceed
         this.isProcessing = false;
         return true; // Allow the upload
       } else {
+        console.log(`✅ "${file.name}" is safe`);
+        
         // Show safe notification
         UIComponents.showSafeNotification(file.name);
         this.isProcessing = false;
@@ -457,7 +479,7 @@ class ChatGPTDocumentScanner {
 
     } catch (error) {
       UIComponents.hideLoadingSpinner();
-      console.error('Error processing file:', error);
+      console.error(`❌ Error scanning "${file.name}":`, error);
       
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       UIComponents.showErrorNotification(`Failed to scan "${file.name}": ${errorMessage}`);

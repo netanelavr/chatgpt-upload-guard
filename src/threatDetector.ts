@@ -44,36 +44,14 @@ export class ThreatDetector {
       throw new Error('Failed to initialize threat detection engine');
     }
 
-    const prompt = this.createAnalysisPrompt(content, fileName);
-    
     try {
       const response = await this.engine.chat.completions.create({
         messages: [
           {
             role: "system",
-            content: "You are a cybersecurity expert specialized in detecting prompt injection attacks. Analyze the provided document content and respond ONLY with a valid JSON object."
-          },
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        temperature: 0.1,
-        // max_tokens: 800
-      });
+            content: `You are a cybersecurity expert specialized in detecting prompt injection attacks. Analyze the provided document content and respond ONLY with a valid JSON object.
 
-      const responseText = response.choices[0]?.message?.content || '';
-      return this.parseAnalysisResponse(responseText, content);
-    } catch (error) {
-      console.error('Error during threat analysis:', error);
-      throw new Error('Failed to analyze content for threats');
-    }
-  }
-
-  private static createAnalysisPrompt(content: string, fileName: string): string {
-    console.log(content);
-    return `STEP 1: Read this document content carefully:
-"${content}"
+STEP 1: Read the document content carefully.
 
 STEP 2: Answer these specific questions with YES or NO:
 
@@ -98,8 +76,29 @@ STEP 5: Return ONLY this JSON format (no other text):
   "riskLevel": [if X >= 2 then "high", if X = 1 then "medium", if X = 0 then "low"],
   "summary": [brief explanation],
   "confidence": 0.95
-}`;
+}`
+          },
+          {
+            role: "user",
+            content: `Document to analyze: "${fileName}"
+
+Content:
+"${content}"`
+          }
+        ],
+        temperature: 0.1,
+        // max_tokens: 800
+      });
+
+      const responseText = response.choices[0]?.message?.content || '';
+      return this.parseAnalysisResponse(responseText, content);
+    } catch (error) {
+      console.error(`❌ Error analyzing "${fileName}":`, error);
+      throw new Error('Failed to analyze content for threats');
+    }
   }
+
+
 
   private static parseAnalysisResponse(response: string, originalContent: string): ThreatAnalysis {
     try {

@@ -71,6 +71,7 @@ export class ThreatDetector {
   }
 
   private static createAnalysisPrompt(content: string, fileName: string): string {
+    console.log(content);
     return `STEP 1: Read this document content carefully:
 "${content}"
 

@@ -45,7 +45,7 @@ class ChatGPTDocumentScanner {
       
       this.isLLMReady = true;
       this.enableUploadButtons();
-      console.log('ChatGPT Document Scanner: Threat detection ready, upload buttons enabled');
+      console.log('ChatGPT Document Scanner: Threat detection ready');
     } catch (error) {
       console.error('ChatGPT Document Scanner: Failed to initialize threat detection:', error);
       // Keep buttons disabled if initialization fails

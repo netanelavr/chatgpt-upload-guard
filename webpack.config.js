@@ -24,7 +24,9 @@ module.exports = {
       "crypto": false,
       "stream": false,
       "buffer": false,
-      "util": false
+      "util": false,
+      "canvas": false,
+      "url": false
     }
   },
   output: {

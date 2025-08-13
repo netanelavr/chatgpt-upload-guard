@@ -23,6 +23,11 @@ class ChatGPTDocumentScanner {
     // Disable upload buttons initially
     this.disableUploadButtons();
     
+    // Try again after ChatGPT loads (buttons might not exist yet)
+    setTimeout(() => {
+      this.disableUploadButtons();
+    }, 2000);
+    
     // Initialize threat detection engine in background
     this.initializeThreatDetector();
     
@@ -52,7 +57,11 @@ class ChatGPTDocumentScanner {
     const uploadSelectors = [
       // File input elements
       'input[type="file"]',
-      // Attach/upload buttons (common patterns in ChatGPT)
+      // ChatGPT's actual plus button (composer button)
+      'button[data-testid="composer-plus-btn"]',
+      'button.composer-btn',
+      'button[data-testid*="composer-plus"]',
+      // Other attach/upload buttons (fallback patterns)
       'button[data-testid*="attach"]',
       'button[aria-label*="attach"]',
       'button[aria-label*="Attach"]',
@@ -63,7 +72,7 @@ class ChatGPTDocumentScanner {
       'button[aria-label*="upload"]',
       'button[aria-label*="Upload"]',
       // Generic patterns that might be upload buttons
-      'button:has(svg[viewBox*="24"]):has(path[d*="M"])', // Common upload icon pattern
+      'button:has(svg[viewBox="0 0 20 20"]):has(path[d*="M9.33496 16.5V10.665"])', // Specific plus icon pattern
     ];
 
     uploadSelectors.forEach(selector => {
@@ -330,6 +339,11 @@ class ChatGPTDocumentScanner {
 
   private checkAndDisableNewUploadElements(element: Element): void {
     const uploadSelectors = [
+      // ChatGPT's actual plus button (composer button)
+      'button[data-testid="composer-plus-btn"]',
+      'button.composer-btn',
+      'button[data-testid*="composer-plus"]',
+      // Other patterns
       'button[data-testid*="attach"]',
       'button[aria-label*="attach"]', 
       'button[aria-label*="Attach"]',
@@ -338,7 +352,7 @@ class ChatGPTDocumentScanner {
       'button[data-testid*="upload"]',
       'button[aria-label*="upload"]',
       'button[aria-label*="Upload"]',
-      'button:has(svg[viewBox*="24"]):has(path[d*="M"])',
+      'button:has(svg[viewBox="0 0 20 20"]):has(path[d*="M9.33496 16.5V10.665"])',
     ];
 
     uploadSelectors.forEach(selector => {

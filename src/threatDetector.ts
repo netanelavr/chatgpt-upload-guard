@@ -20,21 +20,15 @@ export class ThreatDetector {
     this.isInitializing = true;
     
     try {
-      console.log('Initializing WebLLM engine...');
+      console.log('WebLLM: Initializing Llama-3.2-3B model...');
       
-              // Use a larger model for better threat detection capability
-        this.engine = await CreateMLCEngine(
-          "Llama-3.2-3B-Instruct-q4f32_1-MLC",
-        {
-          initProgressCallback: (report) => {
-            console.log('WebLLM initialization progress:', report);
-          }
-        }
+      this.engine = await CreateMLCEngine(
+        "Llama-3.2-3B-Instruct-q4f32_1-MLC"
       );
       
-      console.log('WebLLM engine initialized successfully');
+      console.log('WebLLM: Model loaded and ready for threat detection');
     } catch (error) {
-      console.error('Failed to initialize WebLLM engine:', error);
+      console.error('WebLLM: Failed to initialize engine:', error);
       throw error;
     } finally {
       this.isInitializing = false;
@@ -50,13 +44,7 @@ export class ThreatDetector {
       throw new Error('Failed to initialize threat detection engine');
     }
 
-    console.log(`Analyzing file: ${fileName} (${content.length} characters)`);
     const prompt = this.createAnalysisPrompt(content, fileName);
-    
-    console.log('=== PROMPT SENT TO LLM ===');
-    console.log('System message:', "You are a cybersecurity expert specialized in detecting prompt injection attacks. Analyze the provided document content and respond ONLY with a valid JSON object.");
-    console.log('User prompt:', prompt);
-    console.log('=== END PROMPT ===');
     
     try {
       const response = await this.engine.chat.completions.create({
@@ -75,20 +63,7 @@ export class ThreatDetector {
       });
 
       const responseText = response.choices[0]?.message?.content || '';
-      console.log('=== AI RAW RESPONSE ===');
-      console.log(responseText);
-      console.log('=== END AI RESPONSE ===');
-      
-      const analysis = this.parseAnalysisResponse(responseText, content);
-      console.log('=== PARSED ANALYSIS RESULT ===');
-      console.log('Threats detected:', analysis.isThreats);
-      console.log('Risk level:', analysis.riskLevel);
-      console.log('Threats found:', analysis.threats);
-      console.log('Summary:', analysis.summary);
-      console.log('Confidence:', analysis.confidence);
-      console.log('=== END ANALYSIS RESULT ===');
-      
-      return analysis;
+      return this.parseAnalysisResponse(responseText, content);
     } catch (error) {
       console.error('Error during threat analysis:', error);
       throw new Error('Failed to analyze content for threats');
@@ -139,13 +114,6 @@ STEP 5: Return ONLY this JSON format (no other text):
       const hasThreatsList = Array.isArray(parsed.threats) && parsed.threats.length > 0;
       const hasHighRisk = ['medium', 'high'].includes(parsed.riskLevel);
       const actuallyHasThreats = Boolean(parsed.isThreats) || hasThreatsList || hasHighRisk;
-      
-      console.log('=== THREAT DETECTION LOGIC ===');
-      console.log('AI said isThreats:', parsed.isThreats);
-      console.log('Has threats list:', hasThreatsList, '(count:', parsed.threats?.length || 0, ')');
-      console.log('Has high risk:', hasHighRisk, '(level:', parsed.riskLevel, ')');
-      console.log('Final decision - actuallyHasThreats:', actuallyHasThreats);
-      console.log('=== END LOGIC ===');
       
       return {
         isThreats: actuallyHasThreats,

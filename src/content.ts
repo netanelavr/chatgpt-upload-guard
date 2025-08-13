@@ -2,6 +2,13 @@ import { FileParser } from './fileParser';
 import { ThreatDetector } from './threatDetector';
 import { UIComponents } from './uiComponents';
 
+interface ScanStats {
+  totalScans: number;
+  threatsDetected: number;
+  filesBlocked: number;
+  lastScan: string | null;
+}
+
 class ChatGPTDocumentScanner {
   private isProcessing = false;
   private processedFiles = new Set<string>();
@@ -11,7 +18,7 @@ class ChatGPTDocumentScanner {
   }
 
   private init(): void {
-    console.log('ChatGPT Document Scanner initialized');
+    console.log('ChatGPT Document Scanner: Extension initialized');
     
     // Initialize threat detection engine in background
     this.initializeThreatDetector();
@@ -25,12 +32,67 @@ class ChatGPTDocumentScanner {
 
   private async initializeThreatDetector(): Promise<void> {
     try {
-      console.log('Pre-initializing threat detection engine...');
+      console.log('ChatGPT Document Scanner: Initializing AI threat detection...');
       await ThreatDetector.initialize();
-      console.log('Threat detection engine ready');
+      console.log('ChatGPT Document Scanner: Threat detection ready');
     } catch (error) {
-      console.error('Failed to initialize threat detection:', error);
+      console.error('ChatGPT Document Scanner: Failed to initialize threat detection:', error);
     }
+  }
+
+  private async getStats(): Promise<ScanStats> {
+    try {
+      const result = await chrome.storage.local.get(['scanStats']);
+      return result.scanStats || {
+        totalScans: 0,
+        threatsDetected: 0,
+        filesBlocked: 0,
+        lastScan: null
+      };
+    } catch (error) {
+      console.error('Failed to get stats:', error);
+      return {
+        totalScans: 0,
+        threatsDetected: 0,
+        filesBlocked: 0,
+        lastScan: null
+      };
+    }
+  }
+
+  private async updateStats(updates: Partial<ScanStats>): Promise<void> {
+    try {
+      const currentStats = await this.getStats();
+      const newStats = {
+        ...currentStats,
+        ...updates,
+        lastScan: new Date().toISOString()
+      };
+      await chrome.storage.local.set({ scanStats: newStats });
+    } catch (error) {
+      console.error('Failed to update stats:', error);
+    }
+  }
+
+  private async incrementScanCount(): Promise<void> {
+    const stats = await this.getStats();
+    await this.updateStats({
+      totalScans: stats.totalScans + 1
+    });
+  }
+
+  private async incrementThreatCount(): Promise<void> {
+    const stats = await this.getStats();
+    await this.updateStats({
+      threatsDetected: stats.threatsDetected + 1
+    });
+  }
+
+  private async incrementBlockedCount(): Promise<void> {
+    const stats = await this.getStats();
+    await this.updateStats({
+      filesBlocked: stats.filesBlocked + 1
+    });
   }
 
   private monitorFileUploads(): void {
@@ -164,21 +226,28 @@ class ChatGPTDocumentScanner {
       UIComponents.showLoadingSpinner(file.name);
 
       // Parse file content
-      console.log(`Parsing file: ${file.name}`);
       const parsedFile = await FileParser.parseFile(file);
 
       // Analyze for threats
-      console.log(`Analyzing file for threats: ${file.name}`);
       const analysis = await ThreatDetector.analyzeContent(parsedFile.content, parsedFile.fileName);
+
+      // Update scan count
+      await this.incrementScanCount();
 
       // Hide loading spinner
       UIComponents.hideLoadingSpinner();
 
       if (analysis.isThreats) {
+        // Update threat count
+        await this.incrementThreatCount();
+
         // Show threat popup and wait for user decision
         const shouldProceed = await UIComponents.showThreatPopup(file.name, analysis);
         
         if (!shouldProceed) {
+          // Update blocked count
+          await this.incrementBlockedCount();
+
           // Block the upload by clearing the input
           if (input) {
             input.value = '';
@@ -187,15 +256,11 @@ class ChatGPTDocumentScanner {
             const changeEvent = new Event('change', { bubbles: true });
             input.dispatchEvent(changeEvent);
           }
-          
-          console.log(`Blocked upload of potentially malicious file: ${file.name}`);
-        } else {
-          console.log(`User chose to proceed with flagged file: ${file.name}`);
+
         }
       } else {
         // Show safe notification
         UIComponents.showSafeNotification(file.name);
-        console.log(`File passed security scan: ${file.name}`);
       }
 
     } catch (error) {

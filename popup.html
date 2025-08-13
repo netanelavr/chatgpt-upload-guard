@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Document Scanner</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="popup-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <span class="icon">🛡️</span>
+                <h1>Document Scanner</h1>
+            </div>
+            <div class="status" id="status">
+                <span class="status-indicator" id="statusIndicator"></span>
+                <span class="status-text" id="statusText">Checking...</span>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="dashboard">Dashboard</button>
+            <button class="tab-button" data-tab="results">Results</button>
+            <button class="tab-button" data-tab="settings">Settings</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalScans">0</div>
+                    <div class="stat-label">Total Scans</div>
+                </div>
+                <div class="stat-card high-risk">
+                    <div class="stat-number" id="highRiskCount">0</div>
+                    <div class="stat-label">High Risk</div>
+                </div>
+                <div class="stat-card medium-risk">
+                    <div class="stat-number" id="mediumRiskCount">0</div>
+                    <div class="stat-label">Medium Risk</div>
+                </div>
+                <div class="stat-card low-risk">
+                    <div class="stat-number" id="lowRiskCount">0</div>
+                    <div class="stat-label">Low Risk</div>
+                </div>
+            </div>
+
+            <div class="recent-activity">
+                <h3>Recent Activity</h3>
+                <div id="recentScans" class="activity-list">
+                    <div class="no-activity">No recent scans</div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <button class="action-button" id="clearHistory">
+                    <span class="icon">🗑️</span>
+                    Clear History
+                </button>
+                <button class="action-button" id="exportResults">
+                    <span class="icon">📊</span>
+                    Export Results
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Tab -->
+        <div class="tab-content" id="results">
+            <div class="results-header">
+                <h3>Scan Results</h3>
+                <div class="filter-controls">
+                    <select id="riskFilter">
+                        <option value="all">All Risks</option>
+                        <option value="high">High Risk</option>
+                        <option value="medium">Medium Risk</option>
+                        <option value="low">Low Risk</option>
+                        <option value="clean">Clean</option>
+                    </select>
+                </div>
+            </div>
+            <div id="resultsContainer" class="results-container">
+                <div class="no-results">No scan results available</div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div class="tab-content" id="settings">
+            <div class="settings-section">
+                <h3>Scan Settings</h3>
+                
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <input type="checkbox" id="enableNotifications" checked>
+                        <span class="setting-title">Enable Notifications</span>
+                        <span class="setting-description">Show popup notifications for scan results</span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <input type="checkbox" id="autoScan" checked>
+                        <span class="setting-title">Auto-scan Files</span>
+                        <span class="setting-description">Automatically scan files when uploaded</span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <input type="checkbox" id="detailedWarnings" checked>
+                        <span class="setting-title">Detailed Warnings</span>
+                        <span class="setting-description">Show detailed threat information in warnings</span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-title">Risk Sensitivity</div>
+                    <div class="setting-description">Adjust how sensitive the scanner is to potential threats</div>
+                    <select id="sensitivity">
+                        <option value="low">Low - Fewer false positives</option>
+                        <option value="medium" selected>Medium - Balanced</option>
+                        <option value="high">High - More sensitive</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-title">Maximum File Size</div>
+                    <div class="setting-description">Maximum file size to scan (MB)</div>
+                    <input type="number" id="maxFileSize" value="10" min="1" max="100">
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>About</h3>
+                <div class="about-info">
+                    <p><strong>Version:</strong> 1.0.0</p>
+                    <p><strong>Purpose:</strong> Protect against prompt injection attacks in document uploads to ChatGPT</p>
+                    <p><strong>Privacy:</strong> All scanning is performed locally. No data is sent to external servers.</p>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-button danger" id="resetSettings">
+                    Reset to Defaults
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

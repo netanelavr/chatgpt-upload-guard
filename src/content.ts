@@ -8,7 +8,6 @@ interface ScanStats {
 }
 
 class ChatGPTDocumentScanner {
-  private isProcessing = false;
   private isLLMReady = false;
   private disabledButtons = new Set<HTMLElement>();
 
@@ -243,7 +242,7 @@ class ChatGPTDocumentScanner {
           } else {
             // Block upload - clear input
             input.value = '';
-            console.log('🚫 File input cleared - upload blocked');
+            console.log('🚫 Upload blocked');
           }
         }
       }
@@ -361,14 +360,7 @@ class ChatGPTDocumentScanner {
   }
 
   private async processFile(file: File): Promise<boolean> {
-    // Prevent multiple simultaneous scans but allow re-scanning the same file
-    if (this.isProcessing) {
-      console.log(`⏳ Scanning already in progress, skipping: "${file.name}"`);
-      return true; // Allow by default if scan in progress
-    }
-    
     try {
-      this.isProcessing = true;
       
       // Show loading notification
       UIComponents.showLoadingSpinner(file.name);
@@ -379,7 +371,7 @@ class ChatGPTDocumentScanner {
       // Analyze for threats
       console.log(`🔍 Analyzing content for threats...`);
       const analysis = await ThreatDetector.analyzeContent(parsedFile.content, parsedFile.fileName);
-      console.log(`🔍 Analysis complete:`, analysis);
+      console.log(`🔍 Analysis complete: ${analysis.isThreats ? 'Threats detected' : 'Document is safe'}`);
       
       // Update scan count
       await this.incrementScanCount();
@@ -395,10 +387,8 @@ class ChatGPTDocumentScanner {
         const shouldProceed = await UIComponents.showThreatPopup(file.name, analysis);
         
         if (shouldProceed) {
-          console.log(`⚠️ Scanning complete: "${file.name}" - Threats detected (${analysis.riskLevel} risk) - User chose to proceed`);
           return true;
         } else {
-          console.log(`🚫 Scanning complete: "${file.name}" - Threats detected (${analysis.riskLevel} risk) - Upload blocked by user`);
           return false;
         }
       } else {
@@ -414,20 +404,15 @@ class ChatGPTDocumentScanner {
       
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error(`❌ Error scanning "${file.name}":`, error);
-      console.error(`❌ Error stack:`, error instanceof Error ? error.stack : 'No stack trace');
       
       // Show error popup and wait for user decision
       const shouldProceed = await UIComponents.showErrorPopup(file.name, errorMessage);
       
       if (shouldProceed) {
-        console.log(`❌ Scanning complete: "${file.name}" - Failed with error: ${errorMessage} - User chose to proceed`);
         return true;
       } else {
-        console.log(`🚫 Scanning complete: "${file.name}" - Failed with error: ${errorMessage} - Upload blocked by user`);
         return false;
       }
-    } finally {
-      this.isProcessing = false;
     }
   }
 }

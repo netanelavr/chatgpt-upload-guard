@@ -100,9 +100,7 @@ Content:
 
 
   private static parseAnalysisResponse(response: string, originalContent: string): ThreatAnalysis {
-    try {
-      console.log(`🔍 Raw AI response:`, response);
-      
+    try {      
       // Extract JSON from response
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
@@ -110,9 +108,7 @@ Content:
         throw new Error('No JSON found in response');
       }
 
-      console.log(`🔍 Extracted JSON:`, jsonMatch[0]);
       const parsed = JSON.parse(jsonMatch[0]);
-      console.log(`🔍 Parsed JSON:`, parsed);
       
       // Handle isThreats being either boolean or array
       let isThreatsValue = parsed.isThreats;

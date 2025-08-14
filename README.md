@@ -5,7 +5,7 @@ A Chrome extension that detects prompt injection attacks in documents uploaded t
 ## 🛡️ Features
 
 - **Real-time Scanning**: Automatically scans all document uploads to ChatGPT
-- **Multi-format Support**: Supports `.txt`, `.docx`, and `.pdf` files
+- **Multi-format Support**: Supports `.txt` and `.docx` files
 - **Local AI Analysis**: Uses WebLLM for private, in-browser threat detection
 - **Smart Detection**: Identifies multiple types of attacks:
   - Prompt injection attempts
@@ -49,7 +49,7 @@ A Chrome extension that detects prompt injection attacks in documents uploaded t
 
 1. **Navigate to ChatGPT**: Go to [chat.openai.com](https://chat.openai.com) or [chatgpt.com](https://chatgpt.com)
 
-2. **Upload a document**: Try to upload a `.txt`, `.docx`, or `.pdf` file
+2. **Upload a document**: Try to upload a `.txt` or `.docx` file
 
 3. **Automatic scanning**: The extension will automatically:
    - Extract content from your file
@@ -116,9 +116,6 @@ chatgpt-doc-scanner/
 |--------|-----------|--------|
 | Plain Text | `.txt` | ✅ Full support |
 | Word Document | `.docx` | ✅ Full support |
-| PDF Document | `.pdf` | ✅ Basic support* |
-
-*PDF support uses basic text extraction. Complex PDFs with images or unusual formatting may not be fully processed.
 
 ## 🎯 Detection Capabilities
 
@@ -162,15 +159,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## ⚠️ Limitations
 
 - Requires WebGPU support for optimal AI performance
-- Initial model loading may take 30-60 seconds
-- Large files (>10MB) may take longer to process
-- PDF text extraction is basic and may miss complex layouts
+- Initial model loading may take ~20 seconds
+
 - Only works on ChatGPT websites (chat.openai.com, chatgpt.com)
 
 ## 🐛 Known Issues
 
 - First-time use requires downloading the AI model (~1-2GB)
-- Some PDFs with complex formatting may not extract text properly
 - WebLLM initialization can be slow on older hardware
 
 ## 📞 Support

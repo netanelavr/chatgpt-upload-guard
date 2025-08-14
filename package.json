@@ -9,7 +9,7 @@
     "clean": "rm -rf dist"
   },
   "keywords": ["chrome-extension", "security", "prompt-injection", "chatgpt", "ai"],
-  "author": "ChatGPT Document Scanner",
+  "author": "ChatGPT Upload Guard",
   "license": "MIT",
   "dependencies": {
     "@mlc-ai/web-llm": "^0.2.79",

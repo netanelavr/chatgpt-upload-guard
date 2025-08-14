@@ -1,8 +1,8 @@
-# ChatGPT Document Scanner - Technical Documentation
+# ChatGPT Upload Guard - Technical Documentation
 
 ## Overview
 
-The ChatGPT Document Scanner is a browser extension that intercepts file uploads to ChatGPT and analyzes them for potential security threats, specifically prompt injection attacks. The extension uses a local WebLLM model (Llama-3.2-3B) for threat detection without sending data to external servers.
+The ChatGPT Upload Guard is a browser extension that intercepts file uploads to ChatGPT and analyzes them for potential security threats, specifically prompt injection attacks. The extension uses a local WebLLM model (Llama-3.2-3B) for threat detection without sending data to external servers.
 
 ## Architecture
 

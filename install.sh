@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# ChatGPT Document Scanner - Installation Script
+# ChatGPT Upload Guard - Installation Script
 # This script builds and prepares the Chrome extension for installation
 
 set -e
 
-echo "🛡️  ChatGPT Document Scanner - Installation"
+echo "🛡️  ChatGPT Upload Guard - Installation"
 echo "============================================"
 echo ""
 

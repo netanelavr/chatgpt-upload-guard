@@ -40,7 +40,7 @@ class ChatGPTDocumentScanner {
   }
 
   private init(): void {
-    console.log('🛡️ Document Scanner: Extension loaded');
+    console.log('🛡️ Upload Guard: Extension loaded');
     
     // Disable upload buttons initially
     this.disableUploadButtons();
@@ -69,9 +69,9 @@ class ChatGPTDocumentScanner {
       // Show active extension notification
       UIComponents.showExtensionActiveNotification();
       
-      console.log('✅ Document Scanner: Ready');
+      console.log('✅ Upload Guard: Ready');
     } catch (error) {
-      console.error('❌ Document Scanner: Failed to initialize:', error);
+      console.error('❌ Upload Guard: Failed to initialize:', error);
       // Keep buttons disabled if initialization fails
     }
   }
@@ -369,7 +369,7 @@ class ChatGPTDocumentScanner {
       console.log(`📄 Parsing file: "${file.name}"`);
       const parsedFile = await FileParser.parseFile(file);      
       // Analyze for threats
-      console.log(`🔍 Analyzing content for threats...`);
+      console.log(`🔍 Analyzing content...`);
       const analysis = await ThreatDetector.analyzeContent(parsedFile.content, parsedFile.fileName);
       console.log(`🔍 Analysis complete: ${analysis.isThreats ? 'Threats detected' : 'Document is safe'}`);
       

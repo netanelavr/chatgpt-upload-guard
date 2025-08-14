@@ -1,4 +1,4 @@
-// Popup script for ChatGPT Document Scanner
+// Popup script for ChatGPT Upload Guard
 
 document.addEventListener('DOMContentLoaded', () => {
   loadPopupData();

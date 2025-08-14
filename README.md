@@ -1,4 +1,4 @@
-# ChatGPT Document Scanner
+# ChatGPT Upload Guard
 
 A Chrome extension that detects prompt injection attacks in documents uploaded to ChatGPT using local AI analysis.
 

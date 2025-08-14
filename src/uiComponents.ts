@@ -76,7 +76,7 @@ export class UIComponents {
 
     notification.innerHTML = `
       ${activeIcon}
-      <span>🛡️ ChatGPT Document Scanner Active</span>
+                          <span>ChatGPT Upload Guard Active</span>
     `;
 
     document.body.appendChild(notification);

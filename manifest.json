@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "ChatGPT Document Scanner",
+  "name": "ChatGPT Upload Guard",
   "version": "1.0.0",
-  "description": "Detects prompt injection attacks in documents uploaded to ChatGPT using local AI analysis",
+  "description": "Secure your ChatGPT uploads - detects threats privately in your browser without sending data anywhere",
   "permissions": [
     "activeTab",
     "storage",
@@ -32,7 +32,7 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "ChatGPT Document Scanner",
+    "default_title": "ChatGPT Upload Guard",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",

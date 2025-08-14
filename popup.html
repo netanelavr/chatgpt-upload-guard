@@ -10,45 +10,77 @@
   <div class="popup-container">
     <header class="popup-header">
       <div class="header-icon">
-        <span id="statusIcon">🛡️</span>
+        <div class="document-icon">
+          <div class="document-body">
+            <div class="document-lines"></div>
+          </div>
+          <div class="checkmark-badge">✓</div>
+        </div>
       </div>
       <div class="header-content">
         <h1>ChatGPT Upload Guard</h1>
-        <p id="status" class="status active">Active on ChatGPT</p>
+        <p id="status" class="status active">✅ Protecting your uploads</p>
       </div>
     </header>
 
     <main class="popup-main">
       <section class="stats-section">
-        <h2>Security Statistics</h2>
         <div class="stats-grid">
-          <div class="stat-item">
-            <span class="stat-number" id="totalScans">0</span>
-            <span class="stat-label">Files Scanned</span>
+          <div class="stat-card">
+            <div class="stat-icon">📄</div>
+            <div class="stat-content">
+              <span class="stat-number" id="totalScans">0</span>
+              <span class="stat-label">Files Scanned</span>
+            </div>
           </div>
-          <div class="stat-item">
-            <span class="stat-number" id="threatsDetected">0</span>
-            <span class="stat-label">Threats Detected</span>
+          <div class="stat-card">
+            <div class="stat-icon">🛡️</div>
+            <div class="stat-content">
+              <span class="stat-number" id="threatsDetected">0</span>
+              <span class="stat-label">Threats Blocked</span>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="info-section">
-        <h3>Supported File Types</h3>
+      <section class="file-types-section">
+        <h3>Supported Documents</h3>
         <div class="file-types">
           <span class="file-type">📄 .txt</span>
           <span class="file-type">📝 .docx</span>
         </div>
       </section>
 
-      <section class="protection-info">
-        <h3>Protection Features</h3>
-        <ul>
-          <li>✅ Prompt injection detection</li>
-          <li>✅ Jailbreak attempt detection</li>
-          <li>✅ Social engineering detection</li>
-          <li>✅ Data extraction prevention</li>
-        </ul>
+      <section class="protection-section">
+        <h3>Security Features</h3>
+        <div class="protection-grid">
+          <div class="protection-item">
+            <span class="protection-check">✓</span>
+            <span>Prompt injection detection</span>
+          </div>
+          <div class="protection-item">
+            <span class="protection-check">✓</span>
+            <span>Jailbreak attempt prevention</span>
+          </div>
+          <div class="protection-item">
+            <span class="protection-check">✓</span>
+            <span>Social engineering blocks</span>
+          </div>
+          <div class="protection-item">
+            <span class="protection-check">✓</span>
+            <span>Data extraction prevention</span>
+          </div>
+        </div>
+      </section>
+      
+      <section class="privacy-badge">
+        <div class="privacy-content">
+          <span class="privacy-icon">🔒</span>
+          <div class="privacy-text">
+            <strong>100% Private</strong>
+            <span>All scanning happens locally in your browser</span>
+          </div>
+        </div>
       </section>
     </main>
   </div>

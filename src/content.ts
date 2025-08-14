@@ -9,10 +9,32 @@ interface ScanStats {
 
 class ChatGPTDocumentScanner {
   private isProcessing = false;
-  private processedFiles = new Set<string>();
   private isLLMReady = false;
   private disabledButtons = new Set<HTMLElement>();
 
+  // Common selectors for upload buttons
+  private static readonly UPLOAD_SELECTORS = [
+    // File input elements
+    'input[type="file"]',
+    // ChatGPT's actual plus button (composer button)
+    'button[data-testid="composer-plus-btn"]',
+    'button.composer-btn',
+    'button[data-testid*="composer-plus"]',
+    // Other attach/upload buttons (fallback patterns)
+    'button[data-testid*="attach"]',
+    'button[aria-label*="attach"]',
+    'button[aria-label*="Attach"]',
+    'button:has(svg[data-testid*="paperclip"])',
+    '[data-testid*="paperclip"]',
+    // Upload buttons
+    'button[data-testid*="upload"]',
+    'button[aria-label*="upload"]',
+    'button[aria-label*="Upload"]',
+    // Generic patterns that might be upload buttons
+    'button:has(svg[viewBox="0 0 20 20"]):has(path[d*="M9.33496 16.5V10.665"])', // Specific plus icon pattern
+  ];
+
+  private static readonly SUPPORTED_FILE_TYPES = ['txt', 'docx'];
 
   constructor() {
     this.init();
@@ -42,9 +64,12 @@ class ChatGPTDocumentScanner {
   private async initializeThreatDetector(): Promise<void> {
     try {
       await ThreatDetector.initialize();
-      
       this.isLLMReady = true;
       this.enableUploadButtons();
+      
+      // Show active extension notification
+      UIComponents.showExtensionActiveNotification();
+      
       console.log('✅ Document Scanner: Ready');
     } catch (error) {
       console.error('❌ Document Scanner: Failed to initialize:', error);
@@ -53,29 +78,7 @@ class ChatGPTDocumentScanner {
   }
 
   private disableUploadButtons(): void {
-    // Find ChatGPT upload/attach buttons
-    const uploadSelectors = [
-      // File input elements
-      'input[type="file"]',
-      // ChatGPT's actual plus button (composer button)
-      'button[data-testid="composer-plus-btn"]',
-      'button.composer-btn',
-      'button[data-testid*="composer-plus"]',
-      // Other attach/upload buttons (fallback patterns)
-      'button[data-testid*="attach"]',
-      'button[aria-label*="attach"]',
-      'button[aria-label*="Attach"]',
-      'button:has(svg[data-testid*="paperclip"])',
-      '[data-testid*="paperclip"]',
-      // Upload buttons
-      'button[data-testid*="upload"]',
-      'button[aria-label*="upload"]',
-      'button[aria-label*="Upload"]',
-      // Generic patterns that might be upload buttons
-      'button:has(svg[viewBox="0 0 20 20"]):has(path[d*="M9.33496 16.5V10.665"])', // Specific plus icon pattern
-    ];
-
-    uploadSelectors.forEach(selector => {
+    ChatGPTDocumentScanner.UPLOAD_SELECTORS.forEach(selector => {
       try {
         const elements = document.querySelectorAll(selector);
         elements.forEach(element => {
@@ -186,11 +189,11 @@ class ChatGPTDocumentScanner {
   }
 
   private monitorFileUploads(): void {
-    // Monitor existing file inputs
+    // Monitor file input changes
     this.attachFileListeners();
     
-    // Monitor drag and drop events
-    this.monitorDragAndDrop();
+    // Monitor DOM changes for new file inputs
+    this.observeDOMChanges();
   }
 
   private attachFileListeners(): void {
@@ -207,120 +210,68 @@ class ChatGPTDocumentScanner {
 
     input.dataset.docScannerAttached = 'true';
     
-    // Intercept BEFORE ChatGPT processes the file
+    // Intercept file uploads BEFORE ChatGPT processes them
     input.addEventListener('change', async (event) => {
-      const files = (event.target as HTMLInputElement).files;
+      const inputElement = event.target as HTMLInputElement;
+      const files = inputElement.files;
       
-      if (files && files.length > 0) {
-        // Check if any file is supported before doing anything
-        const hasSupportedFiles = Array.from(files).some(file => {
-          const fileType = file.name.split('.').pop()?.toLowerCase();
-          return ['txt', 'docx'].includes(fileType || '');
-        });
+      // Skip scanning if this is a re-triggered event after user approval
+      if (inputElement.dataset.docScannerSkipNext === 'true') {
+        return; // Let the event continue normally to ChatGPT
+      }
+      
+      if (files && files.length > 0 && this.isLLMReady) {
+        // Check if any file is supported
+        const supportedFiles = Array.from(files).filter(file => 
+          this.isSupportedFileType(file)
+        );
         
-        // If no supported files, let ChatGPT handle it normally
-        if (!hasSupportedFiles) {
-          return; // Let the event continue normally to ChatGPT
+        if (supportedFiles.length > 0) {
+          console.log(`🔍 Scanning ${supportedFiles.length} file(s)...`);
+          
+          // Stop the event from reaching ChatGPT immediately
+          event.stopImmediatePropagation();
+          event.preventDefault();
+          
+          // Scan files and get user decision
+          const shouldAllowUpload = await this.scanFilesInBackground(supportedFiles, input);
+          
+          if (shouldAllowUpload) {
+            // Allow upload - restore files and trigger event
+            console.log('✅ Upload allowed - processing files');
+            this.allowFileUpload(input, files);
+          } else {
+            // Block upload - clear input
+            input.value = '';
+            console.log('🚫 File input cleared - upload blocked');
+          }
         }
-        
-        console.log(`🔍 Scanning ${files.length} file(s)...`);
-        
-        // Prevent the event from reaching ChatGPT immediately
-        event.stopImmediatePropagation();
-        event.preventDefault();
-        
-        const shouldAllowUpload = await this.handleFileSelection(files, input);
-        
-        if (!shouldAllowUpload) {
-          console.log('🚫 Upload blocked');
-          input.value = '';
-          return;
-        }
-        
-        // If allowed, let the original event continue
-        const originalFiles = files;
-        setTimeout(() => {
-          // Re-trigger the change event with the original files
-          Object.defineProperty(input, 'files', {
-            value: originalFiles,
-            writable: false
-          });
-          const newEvent = new Event('change', { bubbles: true });
-          input.dispatchEvent(newEvent);
-        }, 50);
       }
     }, true); // Use capture phase to intercept early
   }
 
-  private monitorDragAndDrop(): void {
-    // Monitor the entire document for drag and drop
-    document.addEventListener('drop', async (event) => {
-      const files = event.dataTransfer?.files;
+  private allowFileUpload(input: HTMLInputElement, files: FileList): void {
+    // Temporarily mark input to skip our scanning
+    input.dataset.docScannerSkipNext = 'true';
+    
+    // Ensure files are still in the input (they should be since we intercepted before clearing)
+    if (input.files && input.files.length > 0) {
+      // Create a new change event and dispatch it
+      const newEvent = new Event('change', { bubbles: true });
       
-      if (files && files.length > 0) {
-        // Check if any file is supported before doing anything
-        const hasSupportedFiles = Array.from(files).some(file => {
-          const fileType = file.name.split('.').pop()?.toLowerCase();
-          return ['txt', 'docx'].includes(fileType || '');
-        });
-        
-        // If no supported files, let ChatGPT handle it normally
-        if (!hasSupportedFiles) {
-          return; // Let the event continue normally to ChatGPT
-        }
-        
-        // Find the closest file input or upload area
-        const uploadArea = this.findUploadArea(event.target as Element);
-        if (uploadArea) {
-          console.log(`🔍 Scanning ${files.length} file(s)...`);
-          
-          // Prevent the drop from reaching ChatGPT
-          event.stopImmediatePropagation();
-          event.preventDefault();
-          
-          const shouldAllowUpload = await this.handleFileSelection(files);
-          
-          if (shouldAllowUpload) {
-            // If allowed, manually re-trigger the drop
-            const newEvent = new DragEvent('drop', {
-              bubbles: true,
-              dataTransfer: event.dataTransfer
-            });
-            setTimeout(() => {
-              (event.target as Element).dispatchEvent(newEvent);
-            }, 100);
-                      } else {
-            console.log('🚫 Upload blocked');
-          }
-        }
-      }
-    }, true); // Use capture phase
-  }
-
-  private findUploadArea(element: Element): Element | null {
-    // Look for ChatGPT's upload areas
-    const uploadSelectors = [
-      '[data-testid*="upload"]',
-      '[class*="upload"]',
-      '[class*="file"]',
-      'input[type="file"]'
-    ];
-
-    let current = element;
-    let depth = 0;
-    const maxDepth = 10;
-
-    while (current && depth < maxDepth) {
-      for (const selector of uploadSelectors) {
-        if (current.matches?.(selector) || current.querySelector?.(selector)) {
-          return current;
-        }
-      }
-      current = current.parentElement as Element;
-      depth++;
+      // Trigger after a small delay to ensure our event listener can check the flag
+      setTimeout(() => {
+        input.dispatchEvent(newEvent);
+        // Clean up the skip flag after a brief moment
+        setTimeout(() => {
+          delete input.dataset.docScannerSkipNext;
+        }, 100);
+      }, 50);
+    } else {
+      // Files were somehow lost, clean up flag
+      delete input.dataset.docScannerSkipNext;
+      console.warn('Files lost during processing, cannot proceed with upload');
     }
-
-    return null;
   }
 
   private observeDOMChanges(): void {
@@ -366,24 +317,7 @@ class ChatGPTDocumentScanner {
   }
 
   private checkAndDisableNewUploadElements(element: Element): void {
-    const uploadSelectors = [
-      // ChatGPT's actual plus button (composer button)
-      'button[data-testid="composer-plus-btn"]',
-      'button.composer-btn',
-      'button[data-testid*="composer-plus"]',
-      // Other patterns
-      'button[data-testid*="attach"]',
-      'button[aria-label*="attach"]', 
-      'button[aria-label*="Attach"]',
-      'button:has(svg[data-testid*="paperclip"])',
-      '[data-testid*="paperclip"]',
-      'button[data-testid*="upload"]',
-      'button[aria-label*="upload"]',
-      'button[aria-label*="Upload"]',
-      'button:has(svg[viewBox="0 0 20 20"]):has(path[d*="M9.33496 16.5V10.665"])',
-    ];
-
-    uploadSelectors.forEach(selector => {
+    ChatGPTDocumentScanner.UPLOAD_SELECTORS.forEach(selector => {
       try {
         // Check the element itself
         if (element.matches?.(selector)) {
@@ -407,94 +341,96 @@ class ChatGPTDocumentScanner {
     });
   }
 
-  private async handleFileSelection(files: FileList, input?: HTMLInputElement): Promise<boolean> {
-    if (this.isProcessing) {
-      return true; // Allow if already processing
-    }
+  private isSupportedFileType(file: File): boolean {
+    const fileType = file.name.split('.').pop()?.toLowerCase();
+    return ChatGPTDocumentScanner.SUPPORTED_FILE_TYPES.includes(fileType || '');
+  }
 
-    // Process each file and check if ALL should be allowed
-    let allFilesAllowed = true;
-    
-    for (const file of Array.from(files)) {
-      const fileAllowed = await this.processFile(file, input);
-      if (!fileAllowed) {
-        allFilesAllowed = false;
-        break; // Stop processing if any file is blocked
+  private async scanFilesInBackground(files: File[], input?: HTMLInputElement): Promise<boolean> {
+    // Process files one by one - always scan each file
+    for (const file of files) {
+      const shouldAllowFile = await this.processFile(file);
+      
+      // If any file is blocked, block the entire upload
+      if (!shouldAllowFile) {
+        return false;
       }
     }
     
-    return allFilesAllowed;
+    return true; // All files were allowed
   }
 
-  private async processFile(file: File, input?: HTMLInputElement): Promise<boolean> {
-    const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
-    
-    if (this.processedFiles.has(fileKey)) {
-      return true; // Already processed this exact file - allow it
+  private async processFile(file: File): Promise<boolean> {
+    // Prevent multiple simultaneous scans but allow re-scanning the same file
+    if (this.isProcessing) {
+      console.log(`⏳ Scanning already in progress, skipping: "${file.name}"`);
+      return true; // Allow by default if scan in progress
     }
-
-    this.isProcessing = true;
-    this.processedFiles.add(fileKey);
-
+    
     try {
-      // Show loading spinner
+      this.isProcessing = true;
+      
+      // Show loading notification
       UIComponents.showLoadingSpinner(file.name);
-
-      // Parse file content
-      const parsedFile = await FileParser.parseFile(file);
-
+      
+      // Parse the file
+      console.log(`📄 Parsing file: "${file.name}"`);
+      const parsedFile = await FileParser.parseFile(file);      
       // Analyze for threats
+      console.log(`🔍 Analyzing content for threats...`);
       const analysis = await ThreatDetector.analyzeContent(parsedFile.content, parsedFile.fileName);
-
+      console.log(`🔍 Analysis complete:`, analysis);
+      
       // Update scan count
       await this.incrementScanCount();
-
+      
       // Hide loading spinner
       UIComponents.hideLoadingSpinner();
-
+      
       if (analysis.isThreats) {
-        console.log(`⚠️ Threats detected in "${file.name}"`);
-        
         // Update threat count
         await this.incrementThreatCount();
-
+        
         // Show threat popup and wait for user decision
         const shouldProceed = await UIComponents.showThreatPopup(file.name, analysis);
         
-        if (!shouldProceed) {
-          this.isProcessing = false;
-          return false; // Block the upload
+        if (shouldProceed) {
+          console.log(`⚠️ Scanning complete: "${file.name}" - Threats detected (${analysis.riskLevel} risk) - User chose to proceed`);
+          return true;
+        } else {
+          console.log(`🚫 Scanning complete: "${file.name}" - Threats detected (${analysis.riskLevel} risk) - Upload blocked by user`);
+          return false;
         }
-        
-        this.isProcessing = false;
-        return true; // Allow the upload
       } else {
-        console.log(`✅ "${file.name}" is safe`);
-        
         // Show safe notification
         UIComponents.showSafeNotification(file.name);
-        this.isProcessing = false;
-        return true; // Safe file - allow upload
+        console.log(`✅ Scanning complete: "${file.name}" - Document is safe`);
+        return true;
       }
-
+      
     } catch (error) {
+      // Hide loading spinner
       UIComponents.hideLoadingSpinner();
+      
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error(`❌ Error scanning "${file.name}":`, error);
+      console.error(`❌ Error stack:`, error instanceof Error ? error.stack : 'No stack trace');
       
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      UIComponents.showErrorNotification(`Failed to scan "${file.name}": ${errorMessage}`);
+      // Show error popup and wait for user decision
+      const shouldProceed = await UIComponents.showErrorPopup(file.name, errorMessage);
       
+      if (shouldProceed) {
+        console.log(`❌ Scanning complete: "${file.name}" - Failed with error: ${errorMessage} - User chose to proceed`);
+        return true;
+      } else {
+        console.log(`🚫 Scanning complete: "${file.name}" - Failed with error: ${errorMessage} - Upload blocked by user`);
+        return false;
+      }
+    } finally {
       this.isProcessing = false;
-      return true; // Allow upload if scanning fails (don't break user workflow)
     }
   }
 }
 
-// Initialize the scanner when the page loads
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    new ChatGPTDocumentScanner();
-  });
-} else {
-  new ChatGPTDocumentScanner();
-}
+// Initialize the scanner
+new ChatGPTDocumentScanner();

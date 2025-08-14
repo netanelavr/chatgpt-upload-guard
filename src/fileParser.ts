@@ -32,6 +32,16 @@ export class FileParser {
   }
   
   private static async parseTxt(file: File): Promise<string> {
+    return this.readFileAsText(file);
+  }
+  
+  private static async parseDocx(file: File): Promise<string> {
+    const arrayBuffer = await this.readFileAsArrayBuffer(file);
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    return result.value;
+  }
+
+  private static readFileAsText(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -42,22 +52,16 @@ export class FileParser {
       reader.readAsText(file);
     });
   }
-  
-  private static async parseDocx(file: File): Promise<string> {
+
+  private static readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          const arrayBuffer = e.target?.result as ArrayBuffer;
-          const result = await mammoth.extractRawText({ arrayBuffer });
-          resolve(result.value);
-        } catch (error) {
-          reject(new Error('Failed to parse DOCX file'));
-        }
+      reader.onload = (e) => {
+        const arrayBuffer = e.target?.result as ArrayBuffer;
+        resolve(arrayBuffer);
       };
-      reader.onerror = () => reject(new Error('Failed to read DOCX file'));
+      reader.onerror = () => reject(new Error('Failed to read file as ArrayBuffer'));
       reader.readAsArrayBuffer(file);
     });
   }
-
 }

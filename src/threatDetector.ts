@@ -3,7 +3,7 @@ import { CreateMLCEngine, MLCEngine } from '@mlc-ai/web-llm';
 export interface ThreatAnalysis {
   isThreats: boolean;
   threats: string[];
-  riskLevel: 'low' | 'medium' | 'high';
+  riskLevel: 'safe' | 'low' | 'medium' | 'high';
   summary: string;
   confidence: number;
 }
@@ -71,10 +71,10 @@ STEP 4: Generate your response:
 
 STEP 5: Return ONLY this JSON format (no other text):
 {
-  "isThreats": [true if X >= 1, false if X = 0],
+  "isThreats": true or false (true if X >= 1, false if X = 0),
   "threats": [if X >= 1, list what you found; if X = 0, empty array],
-  "riskLevel": [if X >= 2 then "high", if X = 1 then "medium", if X = 0 then "low"],
-  "summary": [brief explanation],
+  "riskLevel": "high" or "medium" or "safe" (if X >= 2 then "high", if X = 1 then "medium", if X = 0 then "safe"),
+  "summary": "brief explanation",
   "confidence": 0.95
 }`
           },
@@ -86,8 +86,7 @@ Content:
 "${content}"`
           }
         ],
-        temperature: 0.1,
-        // max_tokens: 800
+        temperature: 0.1
       });
 
       const responseText = response.choices[0]?.message?.content || '';
@@ -102,23 +101,34 @@ Content:
 
   private static parseAnalysisResponse(response: string, originalContent: string): ThreatAnalysis {
     try {
+      console.log(`🔍 Raw AI response:`, response);
+      
       // Extract JSON from response
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
+        console.error('❌ No JSON found in AI response:', response);
         throw new Error('No JSON found in response');
       }
 
+      console.log(`🔍 Extracted JSON:`, jsonMatch[0]);
       const parsed = JSON.parse(jsonMatch[0]);
+      console.log(`🔍 Parsed JSON:`, parsed);
+      
+      // Handle isThreats being either boolean or array
+      let isThreatsValue = parsed.isThreats;
+      if (Array.isArray(isThreatsValue)) {
+        isThreatsValue = isThreatsValue[0]; // Extract first element if it's an array
+      }
       
       // Smart logic: if there are threats listed OR risk is medium/high, consider it threatening
       const hasThreatsList = Array.isArray(parsed.threats) && parsed.threats.length > 0;
       const hasHighRisk = ['medium', 'high'].includes(parsed.riskLevel);
-      const actuallyHasThreats = Boolean(parsed.isThreats) || hasThreatsList || hasHighRisk;
+      const actuallyHasThreats = Boolean(isThreatsValue) || hasThreatsList || hasHighRisk;
       
       return {
         isThreats: actuallyHasThreats,
         threats: Array.isArray(parsed.threats) ? parsed.threats : [],
-        riskLevel: ['low', 'medium', 'high'].includes(parsed.riskLevel) ? parsed.riskLevel : 'low',
+        riskLevel: ['safe', 'low', 'medium', 'high'].includes(parsed.riskLevel) ? parsed.riskLevel : 'safe',
         summary: String(parsed.summary || 'Analysis completed'),
         confidence: Math.max(0, Math.min(1, Number(parsed.confidence) || 0))
       };

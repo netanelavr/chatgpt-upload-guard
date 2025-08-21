@@ -4,203 +4,68 @@ A Chrome extension that detects prompt injection attacks in documents uploaded t
 
 ## 🛡️ Features
 
-- **Real-time Scanning**: Automatically scans all document uploads to ChatGPT
-- **Multi-format Support**: Supports `.txt` and `.docx` files
-- **Local AI Analysis**: Uses WebLLM for private, in-browser threat detection
-- **Smart Detection**: Identifies multiple types of attacks:
-  - Prompt injection attempts
-  - Jailbreak prompts (DAN, roleplay attacks, etc.)
-  - Social engineering attempts
-  - Data extraction attempts
-  - System instruction overrides
-- **User-friendly Interface**: Clean notifications and detailed threat reports
+- **Real-time Scanning**: Automatically scans document uploads to ChatGPT
+- **Local AI Analysis**: Private, in-browser threat detection using WebLLM
+- **Smart Detection**: Identifies prompt injections, jailbreaks, social engineering, and data extraction attempts
 - **Privacy-focused**: All processing happens locally in your browser
 
 ## 🚀 Installation
 
-### Option 1: Install from Chrome Web Store (Coming Soon)
-*This extension will be available on the Chrome Web Store soon.*
+### From Source
 
-### Option 2: Install from Source
-
-1. **Clone the repository**:
+1. Clone and build:
    ```bash
    git clone https://github.com/yourusername/chatgpt-doc-scanner.git
    cd chatgpt-doc-scanner
-   ```
-
-2. **Install dependencies**:
-   ```bash
    npm install
-   ```
-
-3. **Build the extension**:
-   ```bash
    npm run build
    ```
 
-4. **Load in Chrome**:
-   - Open Chrome and go to `chrome://extensions/`
-   - Enable "Developer mode" (toggle in top right)
-   - Click "Load unpacked"
-   - Select the project folder
+2. Load in Chrome:
+   - Go to `chrome://extensions/`
+   - Enable "Developer mode" 
+   - Click "Load unpacked" and select the project folder
 
-## 📖 How to Use
+## 📖 Usage
 
-1. **Navigate to ChatGPT**: Go to [chat.openai.com](https://chat.openai.com) or [chatgpt.com](https://chatgpt.com)
+1. Navigate to [ChatGPT](https://chat.openai.com)
+2. Upload a document (`.txt`, `.docx`, `.md`, etc.)
+3. The extension automatically scans for threats
+4. Review results and choose to block or proceed with upload
 
-2. **Upload a document**: Try to upload a `.txt` or `.docx` file
+## 📊 Supported Files
 
-3. **Automatic scanning**: The extension will automatically:
-   - Extract content from your file
-   - Analyze it for security threats using local AI
-   - Show results:
-     - ✅ **Safe files**: Brief notification
-     - ⚠️ **Threats detected**: Detailed popup with options
-
-4. **Review results**: If threats are detected, you can:
-   - **Block Upload**: Prevent the potentially dangerous file from being uploaded
-   - **Proceed Anyway**: Continue with the upload (not recommended)
-
-## 🔧 Development
-
-### Prerequisites
-- Node.js 16+ 
-- npm or yarn
-- Chrome browser
-
-### Development Scripts
-```bash
-# Install dependencies
-npm install
-
-# Build for development (with watch mode)
-npm run dev
-
-# Build for production
-npm run build
-
-# Clean build directory
-npm run clean
-```
-
-### Project Structure
-```
-chatgpt-doc-scanner/
-├── src/
-│   ├── content.ts          # Main content script
-│   ├── background.ts       # Background service worker
-│   ├── popup.ts           # Extension popup
-│   ├── fileParser.ts      # File parsing utilities
-│   ├── threatDetector.ts  # AI-powered threat detection
-│   └── uiComponents.ts    # UI components and notifications
-├── styles/
-│   ├── content.css        # Content script styles
-│   └── popup.css          # Popup styles
-├── icons/                 # Extension icons
-├── manifest.json          # Extension manifest
-├── popup.html            # Popup HTML
-└── webpack.config.js     # Build configuration
-```
+- **Documents**: `.txt`, `.docx`, `.pdf`, `.md`, `.csv`
+- **Code**: `.js`, `.ts`, `.py`, `.java`, `.cpp`, `.html`, `.css`, and 30+ more
+- **Config**: `.json`, `.yaml`, `.xml`, `.env`
 
 ## 🔒 Privacy & Security
 
-- **100% Local Processing**: All file analysis happens in your browser
-- **No Data Transmission**: No files or content are sent to external servers
-- **No Storage**: File contents are not stored or cached
-- **Open Source**: Full source code available for audit
+- **100% Local**: All analysis happens in your browser
+- **No Data Sent**: Files never leave your device
+- **Open Source**: Full code available for audit
 
-## 📊 Supported File Types
+## 🔧 Development
 
-The extension supports a wide range of text-based file formats:
-
-### 📄 Documents
-- **Word Documents** (`.docx`) - Full text extraction
-- **Plain Text** (`.txt`) - Direct content analysis
-
-### 💻 Code Files
-- **Programming Languages**: TypeScript (`.ts`), JavaScript (`.js`), Python (`.py`), Java (`.java`), C++ (`.cpp`), C (`.c`), C# (`.cs`), PHP (`.php`), Ruby (`.rb`), Go (`.go`), Rust (`.rs`), Swift (`.swift`), Kotlin (`.kt`), Scala (`.scala`), R (`.r`), SQL (`.sql`)
-- **Shell Scripts**: Bash (`.sh`), PowerShell (`.ps1`), Batch (`.bat`)
-- **Web Technologies**: HTML (`.html`), CSS (`.css`), SCSS (`.scss`), Sass (`.sass`), Less (`.less`), Vue (`.vue`), JSX (`.jsx`), TSX (`.tsx`)
-- **Configuration**: Dockerfile, `.gitignore`, `.env`, `.config`, `.ini`
-
-### ⚙️ Configuration Files
-- **YAML** (`.yaml`, `.yml`) - Configuration and data files
-- **JSON** (`.json`) - Data and configuration files
-- **XML** (`.xml`) - Structured data and configuration
-
-### 📝 Documentation
-- **Markdown** (`.md`, `.markdown`) - Documentation and notes
-
-### 📊 Data Files
-- **CSV** (`.csv`) - Comma-separated values and data exports
-
-**Total: 40+ supported file types** - All text-based formats that can contain prompt injection attempts.
-
-## 🎯 Detection Capabilities
-
-The extension can detect various types of malicious content:
-
-### Prompt Injection Attacks
-- Direct instruction overrides
-- Context manipulation
-- Role confusion attacks
-
-### Jailbreak Attempts  
-- DAN (Do Anything Now) prompts
-- Roleplay-based bypasses
-- Character impersonation
-
-### Social Engineering
-- Information extraction attempts
-- Manipulation techniques
-- Trust exploitation
-
-### Data Extraction
-- Attempts to access training data
-- System information queries
-- Credential harvesting
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
-
-### Development Guidelines
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```bash
+npm install      # Install dependencies
+npm run dev      # Development build with watch
+npm run build    # Production build
+```
 
 ## ⚠️ Limitations
 
-- Requires WebGPU support for optimal AI performance
-- Initial model loading may take ~20 seconds
-
-- Only works on ChatGPT websites (chat.openai.com, chatgpt.com)
-
-## 🐛 Known Issues
-
-- First-time use requires downloading the AI model (~1-2GB)
-- WebLLM initialization can be slow on older hardware
+- Requires WebGPU support
+- Initial model download (~1-2GB) on first use
+- Only works on ChatGPT websites
 
 ## 📞 Support
 
-If you encounter any issues or have questions:
+Found an issue? Check our [Issues](https://github.com/yourusername/chatgpt-doc-scanner/issues) page or create a new one.
 
-1. Check the [Issues](https://github.com/yourusername/chatgpt-doc-scanner/issues) page
-2. Create a new issue with detailed information
-3. Include browser version, OS, and steps to reproduce
+## 📝 License
 
-## 🙏 Acknowledgments
-
-- [WebLLM](https://github.com/mlc-ai/web-llm) for in-browser AI capabilities
-- [Mammoth.js](https://github.com/mwilliamson/mammoth.js) for DOCX parsing
-- The open-source community for various utilities and inspirations
+MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 

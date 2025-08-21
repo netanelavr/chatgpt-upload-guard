@@ -33,14 +33,16 @@ class ChatGPTDocumentScanner {
     'button:has(svg[viewBox="0 0 20 20"]):has(path[d*="M9.33496 16.5V10.665"])', // Specific plus icon pattern
   ];
 
-  private static readonly SUPPORTED_FILE_TYPES = ['txt', 'docx'];
-
   constructor() {
     this.init();
   }
 
   private init(): void {
     console.log('🛡️ Upload Guard: Extension loaded');
+    
+    // Initialize file parser registry FIRST (before upload monitoring)
+    // This ensures file type detection works even before LLM is ready
+    FileParser.initialize();
     
     // Disable upload buttons initially
     this.disableUploadButtons();
@@ -341,8 +343,11 @@ class ChatGPTDocumentScanner {
   }
 
   private isSupportedFileType(file: File): boolean {
-    const fileType = file.name.split('.').pop()?.toLowerCase();
-    return ChatGPTDocumentScanner.SUPPORTED_FILE_TYPES.includes(fileType || '');
+    const fileType = file.name.split('.').pop()?.toLowerCase() || '';
+    const fileTypeWithDot = '.' + fileType; // Add dot to match registry format
+    const isSupported = FileParser.isSupported(fileTypeWithDot);
+    console.log(`🔍 File type check: "${file.name}" (${fileTypeWithDot}) -> ${isSupported ? 'SUPPORTED' : 'NOT SUPPORTED'}`);
+    return isSupported;
   }
 
   private async scanFilesInBackground(files: File[], input?: HTMLInputElement): Promise<boolean> {

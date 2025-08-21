@@ -38,7 +38,8 @@ module.exports = {
       patterns: [
         { from: 'popup.html', to: 'popup.html' },
         { from: 'styles', to: 'styles' },
-        { from: 'icons', to: 'icons' }
+        { from: 'icons', to: 'icons' },
+        { from: 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs', to: '../pdf.worker.min.mjs' }
       ],
     }),
   ],

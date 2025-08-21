@@ -167,9 +167,31 @@ The extension uses a structured prompt to analyze content for specific threat pa
 ## Configuration
 
 ### Supported File Types
-Currently limited to:
+The extension supports 25+ text-based file formats through a plugin-based architecture:
+
+**Document Types:**
 - `.txt` - Plain text files
 - `.docx` - Microsoft Word documents
+
+**Programming Languages:**
+- `.ts`, `.js`, `.py`, `.java`, `.cpp`, `.c`, `.cs`, `.php`, `.rb`, `.go`, `.rs`, `.swift`, `.kt`, `.scala`, `.r`, `.sql`
+
+**Web Technologies:**
+- `.html`, `.css`, `.scss`, `.sass`, `.less`, `.vue`, `.jsx`, `.tsx`
+
+**Configuration Files:**
+- `.yaml`, `.yml`, `.json`, `.xml`, `.ini`, `.env`, `.config`, `.gitignore`, `Dockerfile`
+
+**Scripts & Shell:**
+- `.sh`, `.ps1`, `.bat`
+
+**Documentation:**
+- `.md`, `.markdown`
+
+**Data Files:**
+- `.csv`
+
+The plugin-based architecture allows easy addition of new file types without modifying core logic.
 
 ### Model Configuration
 - Model: `Llama-3.2-3B-Instruct-q4f32_1-MLC`
@@ -187,16 +209,3 @@ Currently limited to:
 - Users can always choose to proceed despite detected threats
 - All decisions are logged for transparency
 - Extension provides detailed explanations for threat classifications
-
-## Future Extensions
-
-### Planned Enhancements
-- Support for additional file formats (PDF, RTF, etc.)
-- Configurable threat detection sensitivity
-- Batch processing optimizations
-- Integration with external threat intelligence feeds
-
-### Architecture Scalability
-- Modular design allows easy addition of new file parsers
-- Threat detection logic can be extended with additional models
-- UI components are reusable across different notification types

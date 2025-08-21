@@ -112,10 +112,30 @@ chatgpt-doc-scanner/
 
 ## 📊 Supported File Types
 
-| Format | Extension | Status |
-|--------|-----------|--------|
-| Plain Text | `.txt` | ✅ Full support |
-| Word Document | `.docx` | ✅ Full support |
+The extension supports a wide range of text-based file formats:
+
+### 📄 Documents
+- **Word Documents** (`.docx`) - Full text extraction
+- **Plain Text** (`.txt`) - Direct content analysis
+
+### 💻 Code Files
+- **Programming Languages**: TypeScript (`.ts`), JavaScript (`.js`), Python (`.py`), Java (`.java`), C++ (`.cpp`), C (`.c`), C# (`.cs`), PHP (`.php`), Ruby (`.rb`), Go (`.go`), Rust (`.rs`), Swift (`.swift`), Kotlin (`.kt`), Scala (`.scala`), R (`.r`), SQL (`.sql`)
+- **Shell Scripts**: Bash (`.sh`), PowerShell (`.ps1`), Batch (`.bat`)
+- **Web Technologies**: HTML (`.html`), CSS (`.css`), SCSS (`.scss`), Sass (`.sass`), Less (`.less`), Vue (`.vue`), JSX (`.jsx`), TSX (`.tsx`)
+- **Configuration**: Dockerfile, `.gitignore`, `.env`, `.config`, `.ini`
+
+### ⚙️ Configuration Files
+- **YAML** (`.yaml`, `.yml`) - Configuration and data files
+- **JSON** (`.json`) - Data and configuration files
+- **XML** (`.xml`) - Structured data and configuration
+
+### 📝 Documentation
+- **Markdown** (`.md`, `.markdown`) - Documentation and notes
+
+### 📊 Data Files
+- **CSV** (`.csv`) - Comma-separated values and data exports
+
+**Total: 40+ supported file types** - All text-based formats that can contain prompt injection attempts.
 
 ## 🎯 Detection Capabilities
 

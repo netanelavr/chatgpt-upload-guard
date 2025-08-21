@@ -13,7 +13,8 @@
   "license": "MIT",
   "dependencies": {
     "@mlc-ai/web-llm": "^0.2.79",
-    "mammoth": "^1.7.1"
+    "mammoth": "^1.7.1",
+    "pdfjs-dist": "^4.0.379"
   },
   "devDependencies": {
     "webpack": "^5.89.0",

@@ -225,6 +225,48 @@ body {
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
+.support-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #333;
+}
+
+.support-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pill {
+  background: white;
+  border: 2px solid #666;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: #333;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.file-details {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.file-details p {
+  font-size: 11px;
+  color: #666;
+  margin: 0;
+  line-height: 1.4;
+}
+
 /* Protection Section */
 .protection-grid {
   display: flex;

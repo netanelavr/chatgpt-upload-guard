@@ -12,11 +12,10 @@ async function loadPopupData() {
     
     if (!tab.url?.includes('chat.openai.com') && !tab.url?.includes('chatgpt.com')) {
       showInactiveState();
-      return;
+    } else {
+      showActiveState();
     }
 
-    showActiveState();
-    
     // Load statistics from storage
     const result = await chrome.storage.local.get(['scanStats']);
     const stats = result.scanStats || {

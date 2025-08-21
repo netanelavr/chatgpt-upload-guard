@@ -50,7 +50,8 @@
     {
       "resources": [
         "dist/*",
-        "styles/*"
+        "styles/*",
+        "pdf.worker.min.mjs"
       ],
       "matches": [
         "https://chat.openai.com/*",

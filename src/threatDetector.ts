@@ -20,10 +20,10 @@ export class ThreatDetector {
     this.isInitializing = true;
     
     try {
-      console.log('WebLLM: Initializing Llama-3.2-1B model...');
+      console.log('WebLLM: Initializing Llama-3.2-3B model...');
       
       this.engine = await CreateMLCEngine(
-        "Llama-3.2-1B-Instruct-q4f32_1-MLC"
+        "Llama-3.2-3B-Instruct-q4f32_1-MLC"
       );
       
       console.log('WebLLM: Model loaded and ready for threat detection');

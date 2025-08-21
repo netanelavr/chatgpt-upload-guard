@@ -2,7 +2,7 @@
 
 ## Overview
 
-Browser extension that intercepts file uploads to ChatGPT and analyzes them for prompt injection attacks using a local WebLLM model (Llama-3.2-1B) for private, offline threat detection.
+Browser extension that intercepts file uploads to ChatGPT and analyzes them for prompt injection attacks using a local WebLLM model (Llama-3.2-3B) for private, offline threat detection.
 
 ## Architecture
 
@@ -60,7 +60,7 @@ Browser extension that intercepts file uploads to ChatGPT and analyzes them for 
 **Data:** `.csv`
 
 ### Model Configuration
-- **Model**: Llama-3.2-1B-Instruct-q4f32_1-MLC
+- **Model**: Llama-3.2-3B-Instruct
 - **Quantization**: 4-bit for reduced memory usage
 - **Temperature**: 0.1 for consistent results
 

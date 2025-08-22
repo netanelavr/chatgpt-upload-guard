@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ChatGPT Upload Guard",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Secure your ChatGPT uploads - detects threats privately in your browser without sending data anywhere",
   "permissions": [
     "activeTab",

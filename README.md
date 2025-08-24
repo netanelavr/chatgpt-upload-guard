@@ -15,8 +15,8 @@ A Chrome extension that detects prompt injection attacks in documents uploaded t
 
 1. Clone and build:
    ```bash
-   git clone https://github.com/yourusername/chatgpt-doc-scanner.git
-   cd chatgpt-doc-scanner
+   git clone https://github.com/yourusername/chatgpt-upload-guard.git
+   cd chatgpt-upload-guard
    npm install
    npm run build
    ```
@@ -61,7 +61,7 @@ npm run build    # Production build
 
 ## 📞 Support
 
-Found an issue? Check our [Issues](https://github.com/yourusername/chatgpt-doc-scanner/issues) page or create a new one.
+Found an issue? Check our [Issues](https://github.com/yourusername/chatgpt-upload-guard/issues) page or create a new one.
 
 ## 📝 License
 

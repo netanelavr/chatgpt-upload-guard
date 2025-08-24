@@ -473,9 +473,9 @@ class ChatGPTDocumentScanner {
       
       // Parse the file
       const parsedFile = await FileParser.parseFile(file);      
+
       // Analyze for threats
       const analysis = await ThreatDetector.analyzeContent(parsedFile.content);
-      console.log(`🔍 Analysis complete: ${analysis.isThreats ? 'Threats detected' : 'Document is safe'}`);
       
       // Update scan count
       await this.incrementScanCount();

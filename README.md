@@ -2,6 +2,10 @@
 
 A Chrome extension that detects prompt injection attacks in documents uploaded to ChatGPT using local AI analysis.
 
+## Demo
+
+https://github.com/user-attachments/assets/dcf03b0d-c0f6-4e65-9db5-44bef2a82c94
+
 ## 🛡️ Features
 
 - **Real-time Scanning**: Automatically scans document uploads to ChatGPT

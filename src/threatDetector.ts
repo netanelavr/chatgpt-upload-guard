@@ -1,4 +1,5 @@
 import { CreateMLCEngine, MLCEngine } from '@mlc-ai/web-llm';
+import sanitizeHtml from 'sanitize-html';
 
 export interface ThreatAnalysis {
   isThreats: boolean;
@@ -6,6 +7,30 @@ export interface ThreatAnalysis {
   riskLevel: 'safe' | 'low' | 'medium' | 'high';
   summary: string;
   confidence: number;
+}
+
+/**
+ * Sanitizes HTML strings to prevent XSS attacks
+ * @param text Potentially unsafe HTML string
+ * @returns Sanitized HTML string
+ */
+export function sanitizeHTML(text: string): string {
+  if (!text) {
+    return '';
+  }
+  return sanitizeHtml(text, {
+    allowedTags: [],
+    allowedAttributes: {},
+  }).trim();
+}
+
+/**
+ * Sanitizes an array of strings
+ * @param items Array of potentially unsafe strings
+ * @returns Array of sanitized strings
+ */
+export function sanitizeArray(items: string[]): string[] {
+  return items.map(item => sanitizeHTML(item));
 }
 
 export class ThreatDetector {
@@ -80,10 +105,7 @@ STEP 5: Return ONLY this JSON format (no other text):
           },
           {
             role: "user",
-            content: `Document to analyze: "${fileName}"
-
-Content:
-"${content}"`
+            content: `Document content to analyze: ${content}`
           }
         ],
         temperature: 0.1

@@ -1,4 +1,4 @@
-import { ThreatAnalysis } from './threatDetector';
+import { ThreatAnalysis, sanitizeHTML, sanitizeArray } from './threatDetector';
 
 export class UIComponents {
   private static loadingOverlay: HTMLElement | null = null;
@@ -7,19 +7,36 @@ export class UIComponents {
 
   static showLoadingSpinner(fileName: string): void {
     this.hideLoadingSpinner(); // Remove any existing spinner
-
+    
     const overlay = document.createElement('div');
     overlay.id = 'doc-scanner-loading';
-    overlay.innerHTML = `
-      <div class="doc-scanner-loading-backdrop">
-        <div class="doc-scanner-loading-content">
-          <div class="doc-scanner-spinner"></div>
-          <h3>Scanning Document</h3>
-          <p>Analyzing "${fileName}" for security threats...</p>
-          <small>This may take a few moments</small>
-        </div>
-      </div>
-    `;
+    
+    // Create elements instead of using innerHTML
+    const backdrop = document.createElement('div');
+    backdrop.className = 'doc-scanner-loading-backdrop';
+    
+    const content = document.createElement('div');
+    content.className = 'doc-scanner-loading-content';
+    
+    const spinner = document.createElement('div');
+    spinner.className = 'doc-scanner-spinner';
+    
+    const title = document.createElement('h3');
+    title.textContent = 'Scanning Document';
+    
+    const message = document.createElement('p');
+    message.textContent = 'Analyzing document for security threats...';
+    
+    const small = document.createElement('small');
+    small.textContent = 'This may take a few moments';
+    
+    // Append elements
+    content.appendChild(spinner);
+    content.appendChild(title);
+    content.appendChild(message);
+    content.appendChild(small);
+    backdrop.appendChild(content);
+    overlay.appendChild(backdrop);
 
     document.body.appendChild(overlay);
     this.loadingOverlay = overlay;
@@ -37,7 +54,7 @@ export class UIComponents {
       'doc-scanner-safe-notification',
       'safe',
       'Document Safe',
-      `"${fileName}" passed security scan`,
+      'Document passed security scan',
       this.getCheckIcon(),
       5000
     );
@@ -113,76 +130,110 @@ export class UIComponents {
   static showErrorPopup(fileName: string, error: string): Promise<boolean> {
     return new Promise((resolve) => {
       this.hideErrorPopup(); // Remove any existing popup
-
+      
+      // Create the modal using DOM APIs instead of innerHTML
       const modal = document.createElement('div');
       modal.id = 'doc-scanner-error-modal';
-
-      modal.innerHTML = `
-        <div class="doc-scanner-modal-backdrop">
-          <div class="doc-scanner-modal-content">
-            <div class="doc-scanner-modal-header">
-              <div class="doc-scanner-threat-icon" style="background-color: #dc2626">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <div>
-                <h2>Scanning Error</h2>
-                <p>Document: <strong>${fileName}</strong></p>
-              </div>
-            </div>
-
-            <div class="doc-scanner-modal-body">
-              <div class="doc-scanner-summary">
-                <h3>Error Details</h3>
-                <p>${error}</p>
-              </div>
-
-              <div class="doc-scanner-warning">
-                <strong>⚠️ Warning:</strong> Unable to scan this document for security threats. This could be due to:
-                <ul>
-                  <li>Unsupported file format</li>
-                  <li>Corrupted file</li>
-                  <li>Network connection issues</li>
-                  <li>AI processing errors</li>
-                </ul>
-                <p>Proceed with caution when uploading unscanned files.</p>
-              </div>
-            </div>
-
-            <div class="doc-scanner-modal-footer">
-              <button id="doc-scanner-error-block" class="doc-scanner-btn danger">
-                Block Upload
-              </button>
-              <button id="doc-scanner-error-proceed" class="doc-scanner-btn secondary">
-                Upload Anyway
-              </button>
-            </div>
-          </div>
+      
+      // Create modal structure
+      const modalBackdrop = document.createElement('div');
+      modalBackdrop.className = 'doc-scanner-modal-backdrop';
+      
+      const content = document.createElement('div');
+      content.className = 'doc-scanner-modal-content';
+      
+      // Create header
+      const header = document.createElement('div');
+      header.className = 'doc-scanner-modal-header';
+      
+      // Create icon
+      const iconContainer = document.createElement('div');
+      iconContainer.className = 'doc-scanner-threat-icon';
+      iconContainer.style.backgroundColor = '#dc2626';
+      
+      // Add SVG icon
+      iconContainer.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" 
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`;
+      
+      // Create header text
+      const headerText = document.createElement('div');
+      
+      const headerTitle = document.createElement('h2');
+      headerTitle.textContent = 'Scanning Error';
+      
+      const headerSubtitle = document.createElement('p');
+      headerSubtitle.textContent = 'Unable to scan document';
+      
+      headerText.appendChild(headerTitle);
+      headerText.appendChild(headerSubtitle);
+      
+      header.appendChild(iconContainer);
+      header.appendChild(headerText);
+      
+      // Create body with warning
+      const body = document.createElement('div');
+      body.className = 'doc-scanner-modal-body';
+      
+      body.innerHTML = `
+        <div class="doc-scanner-summary">
+          <h3>Error Details</h3>
+          <p>An error occurred while scanning the document.</p>
+        </div>
+        <div class="doc-scanner-warning">
+          <strong>⚠️ Warning:</strong> Unable to scan this document for security threats. This could be due to:
+          <ul>
+            <li>Unsupported file format</li>
+            <li>Corrupted file</li>
+            <li>Network connection issues</li>
+            <li>AI processing errors</li>
+          </ul>
+          <p>Proceed with caution when uploading unscanned files.</p>
         </div>
       `;
-
+      
+      // Create footer with buttons
+      const footer = document.createElement('div');
+      footer.className = 'doc-scanner-modal-footer';
+      
+      const errorBlockBtn = document.createElement('button');
+      errorBlockBtn.id = 'doc-scanner-error-block';
+      errorBlockBtn.className = 'doc-scanner-btn danger';
+      errorBlockBtn.textContent = 'Block Upload';
+      
+      const errorProceedBtn = document.createElement('button');
+      errorProceedBtn.id = 'doc-scanner-error-proceed';
+      errorProceedBtn.className = 'doc-scanner-btn secondary';
+      errorProceedBtn.textContent = 'Upload Anyway';
+      
+      footer.appendChild(errorBlockBtn);
+      footer.appendChild(errorProceedBtn);
+      
+      // Assemble modal
+      content.appendChild(header);
+      content.appendChild(body);
+      content.appendChild(footer);
+      modalBackdrop.appendChild(content);
+      modal.appendChild(modalBackdrop);
+      
       document.body.appendChild(modal);
       this.errorModal = modal;
 
       // Add event listeners
-      const blockBtn = modal.querySelector('#doc-scanner-error-block') as HTMLElement;
-      const proceedBtn = modal.querySelector('#doc-scanner-error-proceed') as HTMLElement;
-
-      blockBtn.addEventListener('click', () => {
+      errorBlockBtn.addEventListener('click', () => {
         this.hideErrorPopup();
         resolve(false); // Block upload
       });
 
-      proceedBtn.addEventListener('click', () => {
+      errorProceedBtn.addEventListener('click', () => {
         this.hideErrorPopup();
         resolve(true); // Allow upload
       });
 
       // Close on backdrop click
-      const backdrop = modal.querySelector('.doc-scanner-modal-backdrop') as HTMLElement;
-      backdrop.addEventListener('click', (e) => {
-        if (e.target === backdrop) {
+      modalBackdrop.addEventListener('click', (e) => {
+        if (e.target === modalBackdrop) {
           this.hideErrorPopup();
           resolve(false); // Block by default
         }
@@ -205,30 +256,57 @@ export class UIComponents {
     iconSvg: string,
     autoRemoveDelay: number
   ): void {
+    const sanitizedTitle = sanitizeHTML(title);
+    const sanitizedMessage = sanitizeHTML(message);
+    
     const notification = document.createElement('div');
     notification.id = id;
-    notification.innerHTML = `
-      <div class="doc-scanner-notification ${type}">
-        <div class="doc-scanner-notification-icon">
-          ${iconSvg}
-        </div>
-        <div class="doc-scanner-notification-content">
-          <strong>${title}</strong>
-          <span>${message}</span>
-        </div>
-        <button class="doc-scanner-notification-close">×</button>
-      </div>
-    `;
+    
+    const notificationContainer = document.createElement('div');
+    notificationContainer.className = `doc-scanner-notification ${type}`;
+    
+    // Create icon container
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'doc-scanner-notification-icon';
+    
+    // Create SVG icon (using a safer approach)
+    const iconWrapper = document.createElement('div');
+    iconWrapper.innerHTML = iconSvg; // SVG is trusted content from our code, not user input
+    while (iconWrapper.firstChild) {
+      iconContainer.appendChild(iconWrapper.firstChild);
+    }
+    
+    // Create content container
+    const contentContainer = document.createElement('div');
+    contentContainer.className = 'doc-scanner-notification-content';
+    
+    // Create title element
+    const titleElement = document.createElement('strong');
+    titleElement.textContent = sanitizedTitle;
+    
+    // Create message element
+    const messageElement = document.createElement('span');
+    messageElement.textContent = sanitizedMessage;
+    
+    // Create close button
+    const closeButton = document.createElement('button');
+    closeButton.className = 'doc-scanner-notification-close';
+    closeButton.textContent = '×';
+    
+    // Build the notification structure
+    contentContainer.appendChild(titleElement);
+    contentContainer.appendChild(messageElement);
+    notificationContainer.appendChild(iconContainer);
+    notificationContainer.appendChild(contentContainer);
+    notificationContainer.appendChild(closeButton);
+    notification.appendChild(notificationContainer);
 
     document.body.appendChild(notification);
 
     // Add close button event listener
-    const closeButton = notification.querySelector('.doc-scanner-notification-close');
-    if (closeButton) {
-      closeButton.addEventListener('click', () => {
-        notification.remove();
-      });
-    }
+    closeButton.addEventListener('click', () => {
+      notification.remove();
+    });
 
     // Auto-remove after specified delay
     setTimeout(() => {
@@ -256,23 +334,17 @@ export class UIComponents {
       return;
     }
 
-    const riskColor = analysis.riskLevel === 'high' ? '#dc2626' : 
-                     analysis.riskLevel === 'medium' ? '#ea580c' : '#ca8a04';
-
     const warningIcon = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
       <path d="M10 6V10M10 14H10.01M19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10Z" 
         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`;
 
-    const threatsText = analysis.threats.length > 0 
-      ? ` Threats: ${analysis.threats.join(', ')}`
-      : '';
-
+    // Minimize displayed information
     this.createNotification(
       'doc-scanner-threat-warning',
       'warning',
       `⚠️ Security Threat Detected`,
-      `"${fileName}" contains potential prompt injection attacks.${threatsText} Risk Level: ${analysis.riskLevel.toUpperCase()}`,
+      `Document contains potential security threats. Risk Level: ${analysis.riskLevel.toUpperCase()}`,
       warningIcon,
       10000 // Show for 10 seconds
     );
@@ -281,97 +353,118 @@ export class UIComponents {
   static showThreatPopup(fileName: string, analysis: ThreatAnalysis): Promise<boolean> {
     return new Promise((resolve) => {
       this.hideThreatPopup(); // Remove any existing popup
-
+      
       const modal = document.createElement('div');
       modal.id = 'doc-scanner-threat-modal';
       
       const riskColor = analysis.riskLevel === 'high' ? '#dc2626' : 
                        analysis.riskLevel === 'medium' ? '#ea580c' : 
                        analysis.riskLevel === 'low' ? '#ca8a04' : '#059669';
-
-      modal.innerHTML = `
-        <div class="doc-scanner-modal-backdrop">
-          <div class="doc-scanner-modal-content">
-            <div class="doc-scanner-modal-header">
-              <div class="doc-scanner-threat-icon" style="background-color: ${riskColor}">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <div>
-                <h2>Security Threat Detected</h2>
-                <p>Document: <strong>${fileName}</strong></p>
-              </div>
-            </div>
-
-            <div class="doc-scanner-modal-body">
-              <div class="doc-scanner-risk-level">
-                <span class="doc-scanner-risk-badge ${analysis.riskLevel}">
-                  ${analysis.riskLevel.toUpperCase()} RISK
-                </span>
-                <span class="doc-scanner-confidence">
-                  Confidence: ${Math.round(analysis.confidence * 100)}%
-                </span>
-              </div>
-
-              <div class="doc-scanner-summary">
-                <h3>Summary</h3>
-                <p>${analysis.summary}</p>
-              </div>
-
-              ${analysis.threats.length > 0 ? `
-                <div class="doc-scanner-threats">
-                  <h3>Detected Threats</h3>
-                  <ul>
-                    ${analysis.threats.map(threat => `<li>${threat}</li>`).join('')}
-                  </ul>
-                </div>
-              ` : ''}
-
-              <div class="doc-scanner-warning">
-                <strong>⚠️ Warning:</strong> This document may contain prompt injection attacks that could:
-                <ul>
-                  <li>Manipulate AI responses</li>
-                  <li>Bypass safety guidelines</li>
-                  <li>Extract sensitive information</li>
-                  <li>Perform unauthorized actions</li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="doc-scanner-modal-footer">
-              <button id="doc-scanner-block" class="doc-scanner-btn danger">
-                Block Upload
-              </button>
-              <button id="doc-scanner-proceed" class="doc-scanner-btn secondary">
-                Proceed Anyway
-              </button>
-            </div>
-          </div>
+      
+      // Create modal structure
+      const modalBackdrop = document.createElement('div');
+      modalBackdrop.className = 'doc-scanner-modal-backdrop';
+      
+      const content = document.createElement('div');
+      content.className = 'doc-scanner-modal-content';
+      
+      // Create header
+      const header = document.createElement('div');
+      header.className = 'doc-scanner-modal-header';
+      
+      // Create icon
+      const iconContainer = document.createElement('div');
+      iconContainer.className = 'doc-scanner-threat-icon';
+      iconContainer.style.backgroundColor = riskColor;
+      
+      // Add SVG icon
+      iconContainer.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" 
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`;
+      
+      // Create header text
+      const headerText = document.createElement('div');
+      const headerTitle = document.createElement('h2');
+      headerTitle.textContent = 'Security Threat Detected';
+      const headerSubtitle = document.createElement('p');
+      headerSubtitle.textContent = 'Document contains security threats';
+      headerText.appendChild(headerTitle);
+      headerText.appendChild(headerSubtitle);
+      header.appendChild(iconContainer);
+      header.appendChild(headerText);
+      
+      // Create body with risk level, summary and warning
+      const body = document.createElement('div');
+      body.className = 'doc-scanner-modal-body';
+      
+      body.innerHTML = `
+        <div class="doc-scanner-risk-level">
+          <span class="doc-scanner-risk-badge ${analysis.riskLevel}">
+            ${analysis.riskLevel.toUpperCase()} RISK
+          </span>
+          <span class="doc-scanner-confidence">
+            Confidence: ${Math.round(analysis.confidence * 100)}%
+          </span>
+        </div>
+        
+        <div class="doc-scanner-summary">
+          <h3>Summary</h3>
+          <p>This document contains potentially malicious content that may attempt to manipulate AI systems.</p>
+        </div>
+        
+        <div class="doc-scanner-warning">
+          <strong>⚠️ Warning:</strong> This document may contain prompt injection attacks that could:
+          <ul>
+            <li>Manipulate AI responses</li>
+            <li>Bypass safety guidelines</li>
+            <li>Extract sensitive information</li>
+            <li>Perform unauthorized actions</li>
+          </ul>
         </div>
       `;
-
+      
+      // Create footer with buttons
+      const footer = document.createElement('div');
+      footer.className = 'doc-scanner-modal-footer';
+      
+      const threatBlockBtn = document.createElement('button');
+      threatBlockBtn.id = 'doc-scanner-block';
+      threatBlockBtn.className = 'doc-scanner-btn danger';
+      threatBlockBtn.textContent = 'Block Upload';
+      
+      const threatProceedBtn = document.createElement('button');
+      threatProceedBtn.id = 'doc-scanner-proceed';
+      threatProceedBtn.className = 'doc-scanner-btn secondary';
+      threatProceedBtn.textContent = 'Proceed Anyway';
+      
+      footer.appendChild(threatBlockBtn);
+      footer.appendChild(threatProceedBtn);
+      
+      // Assemble modal
+      content.appendChild(header);
+      content.appendChild(body);
+      content.appendChild(footer);
+      modalBackdrop.appendChild(content);
+      modal.appendChild(modalBackdrop);
+      
       document.body.appendChild(modal);
       this.threatModal = modal;
 
       // Add event listeners
-      const blockBtn = modal.querySelector('#doc-scanner-block') as HTMLElement;
-      const proceedBtn = modal.querySelector('#doc-scanner-proceed') as HTMLElement;
-
-      blockBtn.addEventListener('click', () => {
+      threatBlockBtn.addEventListener('click', () => {
         this.hideThreatPopup();
         resolve(false); // Block upload
       });
 
-      proceedBtn.addEventListener('click', () => {
+      threatProceedBtn.addEventListener('click', () => {
         this.hideThreatPopup();
         resolve(true); // Allow upload
       });
 
       // Close on backdrop click
-      const backdrop = modal.querySelector('.doc-scanner-modal-backdrop') as HTMLElement;
-      backdrop.addEventListener('click', (e) => {
-        if (e.target === backdrop) {
+      modalBackdrop.addEventListener('click', (e) => {
+        if (e.target === modalBackdrop) {
           this.hideThreatPopup();
           resolve(false); // Block by default
         }

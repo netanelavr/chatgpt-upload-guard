@@ -265,10 +265,7 @@ class ChatGPTDocumentScanner {
             // Scan files and get user decision
             const shouldAllowUpload = await this.scanFilesInBackground(supportedFiles);
             
-            if (shouldAllowUpload) {
-              // Allow drop - add files to file input
-              console.log('✅ Drop allowed - processing files');
-              
+            if (shouldAllowUpload) {              
               // Find the file input element
               const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
               
@@ -351,7 +348,6 @@ class ChatGPTDocumentScanner {
           
           if (shouldAllowUpload) {
             // Allow upload - restore files and trigger event
-            console.log('✅ Upload allowed - processing files');
             this.allowFileUpload(input, files);
           } else {
             // Block upload - clear input
@@ -458,7 +454,6 @@ class ChatGPTDocumentScanner {
     const fileType = file.name.split('.').pop()?.toLowerCase() || '';
     const fileTypeWithDot = '.' + fileType; // Add dot to match registry format
     const isSupported = FileParser.isSupported(fileTypeWithDot);
-    console.log(`🔍 File type check: "${file.name}" (${fileTypeWithDot}) -> ${isSupported ? 'SUPPORTED' : 'NOT SUPPORTED'}`);
     return isSupported;
   }
 

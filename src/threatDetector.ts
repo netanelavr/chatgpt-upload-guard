@@ -45,13 +45,13 @@ export class ThreatDetector {
     this.isInitializing = true;
     
     try {
-      console.log('Initializing in-browser AI model...');
+      console.log('Initializing in-browser LLM...');
       
       this.engine = await CreateMLCEngine(
         "Llama-3.2-3B-Instruct-q4f32_1-MLC"
       );
       
-      console.log('WebLLM: Model loaded and ready for threat detection');
+      console.log('LLM loaded successfully');
     } catch (error) {
       console.error('WebLLM: Failed to initialize engine:', error);
       throw error;

@@ -45,7 +45,7 @@ export class ThreatDetector {
     this.isInitializing = true;
     
     try {
-      console.log('WebLLM: Initializing Llama-3.2-3B model...');
+      console.log('Initializing in-browser AI model...');
       
       this.engine = await CreateMLCEngine(
         "Llama-3.2-3B-Instruct-q4f32_1-MLC"
@@ -60,7 +60,7 @@ export class ThreatDetector {
     }
   }
 
-  static async analyzeContent(content: string, fileName: string): Promise<ThreatAnalysis> {
+  static async analyzeContent(content: string): Promise<ThreatAnalysis> {
     if (!this.engine) {
       await this.initialize();
     }
@@ -114,7 +114,7 @@ STEP 5: Return ONLY this JSON format (no other text):
       const responseText = response.choices[0]?.message?.content || '';
       return this.parseAnalysisResponse(responseText, content);
     } catch (error) {
-      console.error(`❌ Error analyzing "${fileName}":`, error);
+      console.error(`❌ Error analyzing document:`, error);
       throw new Error('Failed to analyze content for threats');
     }
   }

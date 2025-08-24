@@ -193,6 +193,9 @@ class ChatGPTDocumentScanner {
     // Monitor file input changes
     this.attachFileListeners();
     
+    // Monitor drag and drop events
+    this.attachDragDropListeners();
+    
     // Monitor DOM changes for new file inputs
     this.observeDOMChanges();
   }
@@ -202,6 +205,115 @@ class ChatGPTDocumentScanner {
     fileInputs.forEach(input => {
       this.attachListenerToInput(input as HTMLInputElement);
     });
+  }
+
+  private removeDragOverlay(): void {
+    // Remove ChatGPT's drag overlay element
+    // Based on the HTML structure provided, it's a div with specific classes
+    const dragOverlays = document.querySelectorAll('div.absolute.z-50.inset-0.flex.gap-2.flex-col.justify-center.items-center');
+    dragOverlays.forEach(overlay => {
+      // Check if it contains the "Add anything" text to make sure it's the right overlay
+      if (overlay.textContent?.includes('Add anything') || overlay.textContent?.includes('Drop any file here')) {
+        overlay.remove();
+      }
+    });
+    
+    // Also try to find overlays by checking for the SVG content (without using :has)
+    const allDivs = document.querySelectorAll('div.absolute.z-50');
+    allDivs.forEach(div => {
+      const svg = div.querySelector('svg[viewBox="0 0 132 108"]');
+      if (svg) {
+        div.remove();
+      }
+    });
+    
+    // Dispatch dragleave event to ensure ChatGPT cleans up any internal state
+    document.dispatchEvent(new DragEvent('dragleave', { bubbles: true }));
+    document.dispatchEvent(new DragEvent('dragend', { bubbles: true }));
+  }
+
+  private attachDragDropListeners(): void {
+    // Store original drop handler reference
+    let processingDrop = false;
+    
+    // Intercept drop events at the capture phase (before ChatGPT can process them)
+    document.addEventListener('drop', async (event) => {
+      // Check if we're already processing a drop to avoid recursion
+      if (processingDrop) {
+        return;
+      }
+      
+      const files = event.dataTransfer?.files;
+      
+      if (files && files.length > 0 && this.isLLMReady) {
+        // Check if any file is supported
+        const supportedFiles = Array.from(files).filter(file => 
+          this.isSupportedFileType(file)
+        );
+        
+        if (supportedFiles.length > 0) {
+          console.log(`🔍 Scanning ${supportedFiles.length} dropped file(s)...`);
+          
+          // Prevent default drop behavior and stop propagation
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          
+          processingDrop = true;
+          
+          try {
+            // Scan files and get user decision
+            const shouldAllowUpload = await this.scanFilesInBackground(supportedFiles);
+            
+            if (shouldAllowUpload) {
+              // Allow drop - add files to file input
+              console.log('✅ Drop allowed - processing files');
+              
+              // Find the file input element
+              const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+              
+              if (fileInput && event.dataTransfer) {
+                // Create a new FileList from the dropped files
+                const dt = new DataTransfer();
+                Array.from(files).forEach(file => dt.items.add(file));
+                
+                // Set the files on the input
+                fileInput.files = dt.files;
+                
+                // Mark to skip scanning since we already scanned
+                fileInput.dataset.docScannerSkipNext = 'true';
+                
+                // Trigger change event to notify ChatGPT
+                const changeEvent = new Event('change', { bubbles: true });
+                fileInput.dispatchEvent(changeEvent);
+                
+                // Clean up skip flag after processing
+                setTimeout(() => {
+                  delete fileInput.dataset.docScannerSkipNext;
+                }, 100);
+              }
+              
+              processingDrop = false;
+              this.removeDragOverlay();
+            } else {
+              // Drop blocked
+              processingDrop = false;
+              this.removeDragOverlay();
+              console.log('🚫 Drop blocked');
+            }
+          } catch (error) {
+            processingDrop = false;
+            this.removeDragOverlay();
+            console.error('Error processing dropped files:', error);
+          }
+        }
+      }
+    }, true); // Use capture phase to intercept early
+    
+    // Also handle dragover to ensure drop events work properly
+    document.addEventListener('dragover', (event) => {
+      event.preventDefault();
+    }, true);
   }
 
   private attachListenerToInput(input: HTMLInputElement): void {
@@ -375,7 +487,7 @@ class ChatGPTDocumentScanner {
       const parsedFile = await FileParser.parseFile(file);      
       // Analyze for threats
       console.log(`🔍 Analyzing content...`);
-      const analysis = await ThreatDetector.analyzeContent(parsedFile.content, parsedFile.fileName);
+      const analysis = await ThreatDetector.analyzeContent(parsedFile.content);
       console.log(`🔍 Analysis complete: ${analysis.isThreats ? 'Threats detected' : 'Document is safe'}`);
       
       // Update scan count

@@ -124,7 +124,7 @@ class CodeFileHandler implements FileTypeHandler {
 
   async parse(file: File): Promise<string> {
     const content = await this.readFileAsText(file);
-    return this.preprocessCodeContent(content, file.name);
+    return content
   }
 
   private readFileAsText(file: File): Promise<string> {
@@ -137,12 +137,6 @@ class CodeFileHandler implements FileTypeHandler {
       reader.onerror = () => reject(new Error('Failed to read code file'));
       reader.readAsText(file);
     });
-  }
-
-  private preprocessCodeContent(content: string, fileName: string): string {
-    // For threat detection, we might want to normalize the content
-    // but keep it readable for analysis
-    return content;
   }
 }
 

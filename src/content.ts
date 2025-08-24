@@ -251,9 +251,7 @@ class ChatGPTDocumentScanner {
           this.isSupportedFileType(file)
         );
         
-        if (supportedFiles.length > 0) {
-          console.log(`🔍 Scanning ${supportedFiles.length} dropped file(s)...`);
-          
+        if (supportedFiles.length > 0) {          
           // Prevent default drop behavior and stop propagation
           event.preventDefault();
           event.stopPropagation();
@@ -296,7 +294,6 @@ class ChatGPTDocumentScanner {
               // Drop blocked
               processingDrop = false;
               this.removeDragOverlay();
-              console.log('🚫 Drop blocked');
             }
           } catch (error) {
             processingDrop = false;
@@ -336,9 +333,7 @@ class ChatGPTDocumentScanner {
           this.isSupportedFileType(file)
         );
         
-        if (supportedFiles.length > 0) {
-          console.log(`🔍 Scanning ${supportedFiles.length} file(s)...`);
-          
+        if (supportedFiles.length > 0) {          
           // Stop the event from reaching ChatGPT immediately
           event.stopImmediatePropagation();
           event.preventDefault();
@@ -352,7 +347,6 @@ class ChatGPTDocumentScanner {
           } else {
             // Block upload - clear input
             input.value = '';
-            console.log('🚫 Upload blocked');
           }
         }
       }
@@ -478,10 +472,9 @@ class ChatGPTDocumentScanner {
       UIComponents.showLoadingSpinner(file.name);
       
       // Parse the file
-      console.log(`📄 Parsing file: "${file.name}"`);
+      console.log(`📄 Analyzing...`);
       const parsedFile = await FileParser.parseFile(file);      
       // Analyze for threats
-      console.log(`🔍 Analyzing content...`);
       const analysis = await ThreatDetector.analyzeContent(parsedFile.content);
       console.log(`🔍 Analysis complete: ${analysis.isThreats ? 'Threats detected' : 'Document is safe'}`);
       
@@ -506,7 +499,6 @@ class ChatGPTDocumentScanner {
       } else {
         // Show safe notification
         UIComponents.showSafeNotification(file.name);
-        console.log(`✅ Scanning complete: "${file.name}" - Document is safe`);
         return true;
       }
       

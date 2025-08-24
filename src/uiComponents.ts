@@ -60,6 +60,85 @@ export class UIComponents {
     );
   }
 
+  private static llmProgressNotification: HTMLElement | null = null;
+
+  static showLLMInitializationNotification(): void {
+    // Remove existing notification if any
+    if (this.llmProgressNotification) {
+      this.llmProgressNotification.remove();
+    }
+
+    const loadingIcon = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <circle cx="10" cy="10" r="8" stroke="#3b82f6" stroke-width="2" fill="none" stroke-dasharray="50.265" stroke-dashoffset="50.265">
+        <animateTransform attributeName="transform" type="rotate" values="0 10 10;360 10 10" dur="1s" repeatCount="indefinite"/>
+      </circle>
+    </svg>`;
+
+    // Create the notification
+    const notification = document.createElement('div');
+    notification.id = 'llm-progress-notification';
+    this.llmProgressNotification = notification;
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 300px;
+      opacity: 0;
+      transform: translateX(20px);
+      transition: all 0.3s ease;
+    `;
+
+    notification.innerHTML = `
+      ${loadingIcon}
+      <div>
+        <div>Initializing Upload Guard LLM...</div>
+        <div id="llm-progress-text" style="font-size: 12px; opacity: 0.8; margin-top: 2px;">Starting up...</div>
+      </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Animate in
+    setTimeout(() => {
+      notification.style.opacity = '1';
+      notification.style.transform = 'translateX(0)';
+    }, 100);
+  }
+
+  static updateLLMProgress(message: string): void {
+    if (this.llmProgressNotification) {
+      const progressText = this.llmProgressNotification.querySelector('#llm-progress-text');
+      if (progressText) {
+        progressText.textContent = message;
+      }
+    }
+  }
+
+  static hideLLMInitializationNotification(): void {
+    if (this.llmProgressNotification) {
+      this.llmProgressNotification.style.opacity = '0';
+      this.llmProgressNotification.style.transform = 'translateX(20px)';
+      setTimeout(() => {
+        if (this.llmProgressNotification) {
+          this.llmProgressNotification.remove();
+          this.llmProgressNotification = null;
+        }
+      }, 300);
+    }
+  }
+
   static showExtensionActiveNotification(): void {
     const activeIcon = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
       <path d="M10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1Z" fill="#059669"/>

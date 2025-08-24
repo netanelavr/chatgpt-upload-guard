@@ -1,5 +1,6 @@
 import { CreateMLCEngine, MLCEngine } from '@mlc-ai/web-llm';
 import sanitizeHtml from 'sanitize-html';
+import { UIComponents } from './uiComponents';
 
 export interface ThreatAnalysis {
   isThreats: boolean;
@@ -44,16 +45,42 @@ export class ThreatDetector {
 
     this.isInitializing = true;
     
-    try {
-      console.log('Initializing in-browser LLM...');
+        try {      
+      // Show progress notification
+      UIComponents.showLLMInitializationNotification();
       
       this.engine = await CreateMLCEngine(
-        "Llama-3.2-3B-Instruct-q4f32_1-MLC"
-      );
+        "Llama-3.2-3B-Instruct-q4f32_1-MLC",
+       {
+         initProgressCallback: (report) => {           
+           // Update progress notification with current status
+           let progressMessage = 'Loading model...';
+           if (report.text) {
+             // Extract meaningful progress info from the report
+             if (report.text.includes('Loading')) {
+               progressMessage = 'Loading model files...';
+             } else if (report.text.includes('Initializing')) {
+               progressMessage = 'Initializing engine...';
+             } else if (report.progress !== undefined) {
+               const percentage = Math.round(report.progress * 100);
+               progressMessage = `Loading... ${percentage}%`;
+             }
+           }
+           UIComponents.updateLLMProgress(progressMessage);
+         }
+       }
+     );
       
-      console.log('LLM loaded successfully');
+      // console.log('LLM loaded successfully');
+      
+      // Hide progress notification
+      UIComponents.hideLLMInitializationNotification();
     } catch (error) {
       console.error('Failed to initialize engine:', error);
+      
+      // Hide progress notification on error
+      UIComponents.hideLLMInitializationNotification();
+      
       throw error;
     } finally {
       this.isInitializing = false;

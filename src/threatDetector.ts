@@ -53,7 +53,7 @@ export class ThreatDetector {
       
       console.log('LLM loaded successfully');
     } catch (error) {
-      console.error('WebLLM: Failed to initialize engine:', error);
+      console.error('Failed to initialize engine:', error);
       throw error;
     } finally {
       this.isInitializing = false;

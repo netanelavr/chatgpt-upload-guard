@@ -482,9 +482,6 @@ export class UIComponents {
           <span class="doc-scanner-risk-badge ${analysis.riskLevel}">
             ${analysis.riskLevel.toUpperCase()} RISK
           </span>
-          <span class="doc-scanner-confidence">
-            Confidence: ${Math.round(analysis.confidence * 100)}%
-          </span>
         </div>
         
         <div class="doc-scanner-summary">

@@ -7,7 +7,6 @@ export interface ThreatAnalysis {
   threats: string[];
   riskLevel: 'safe' | 'low' | 'medium' | 'high';
   summary: string;
-  confidence: number;
 }
 
 /**
@@ -126,8 +125,7 @@ STEP 5: Return ONLY this JSON format (no other text):
   "isThreats": true or false (true if X >= 1, false if X = 0),
   "threats": [if X >= 1, list what you found; if X = 0, empty array],
   "riskLevel": "high" or "medium" or "safe" (if X >= 2 then "high", if X = 1 then "medium", if X = 0 then "safe"),
-  "summary": "brief explanation",
-  "confidence": 0.95
+  "summary": "brief explanation"
 }`
           },
           {
@@ -174,8 +172,7 @@ STEP 5: Return ONLY this JSON format (no other text):
         isThreats: actuallyHasThreats,
         threats: Array.isArray(parsed.threats) ? parsed.threats : [],
         riskLevel: ['safe', 'low', 'medium', 'high'].includes(parsed.riskLevel) ? parsed.riskLevel : 'safe',
-        summary: String(parsed.summary || 'Analysis completed'),
-        confidence: Math.max(0, Math.min(1, Number(parsed.confidence) || 0))
+        summary: String(parsed.summary || 'Analysis completed')
       };
     } catch (error) {
       console.error('Failed to parse analysis response:', error);

@@ -472,7 +472,6 @@ class ChatGPTDocumentScanner {
       UIComponents.showLoadingSpinner(file.name);
       
       // Parse the file
-      console.log(`📄 Analyzing...`);
       const parsedFile = await FileParser.parseFile(file);      
       // Analyze for threats
       const analysis = await ThreatDetector.analyzeContent(parsedFile.content);

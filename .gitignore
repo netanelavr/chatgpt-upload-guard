@@ -10,8 +10,7 @@ dist/
 build/
 *.tgz
 *.tar.gz
-
-# Runtime data
+pdf.worker.min.mjs
 pids
 *.pid
 *.seed

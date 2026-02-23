@@ -9,8 +9,6 @@ A Chrome extension that detects prompt injection attacks in documents uploaded t
 
 ## Demo
 
-https://github.com/user-attachments/assets/2c703702-1622-4b56-a5eb-dec9423b0f2c
-
 https://github.com/user-attachments/assets/dcf03b0d-c0f6-4e65-9db5-44bef2a82c94
 
 ## Features
